@@ -10,7 +10,7 @@ library(RColorBrewer)
 library(forcats)
 
 # RNGkind(kind = "Mersenne-Twister", normal.kind = "Inversion")
-RNGversion(getRversion())
+RNGversion('4.0.3')
 
 plotCM <- function(cm){
   cmdf <- as.data.frame(cm[["table"]])
