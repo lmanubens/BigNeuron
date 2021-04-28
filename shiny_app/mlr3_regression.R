@@ -9,6 +9,9 @@ library(ggpubr)
 library(RColorBrewer)
 library(forcats)
 
+# RNGkind(kind = "Mersenne-Twister", normal.kind = "Inversion")
+RNGversion(getRversion())
+
 plotCM <- function(cm){
   cmdf <- as.data.frame(cm[["table"]])
   cmdf[["color"]] <- ifelse(cmdf[[1]] == cmdf[[2]], "green", "red")
