@@ -1,0 +1,30 @@
+# Ignore the directories
+TMD_*/
+Figures/
+plotly_test/
+gold_*/
+shiny_app/Vaa3D/
+
+# Ignore Figs
+*.pdf
+*.jpg
+*.tif
+
+# Ignore compressed files
+*.rar
+*.zip
+*.tar.gz
+
+# Ignore temp
+*.RDataTmp
+
+# Ignore big files
+*.rdata
+*.Rdata
+*.swc
+*.eswc
+*.marker
+*.mtr
+*.txt
+*.tmp
+

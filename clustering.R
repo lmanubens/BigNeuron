@@ -1,0 +1,77 @@
+library(ggplot2)
+library(ggpubr)
+library(mclust)
+library(factoextra)
+library(cluster)
+
+load('shiny_app/clustdat_dend.Rdata')
+cdat_dend <- cdat
+load('shiny_app/clustdat_iq.Rdata')
+cdat_iq <- cdat
+load('shiny_app/clustdat_both.Rdata')
+cdat_both <- cdat
+
+plot(mclustBIC(scale(cdat_dend),G=1:15))
+plot(mclustBIC(scale(cdat_iq),G=1:15))
+plot(mclustBIC(scale(cdat_both),G=1:15)) + abline(v = 9,col="lightblue", lwd=2, lty=2)
+summary(mclustBIC(scale(cdat_both),G=1:15))
+# plot(mclustBIC(scale(cdat_dend)))
+# plot(mclustBIC(scale(cdat_iq)))
+# plot(mclustBIC(scale(cdat_both)))
+
+hcTree <- hc(modelName = "EEE", data = cdat_both)
+plot(hcTree, what = "merge", labels = TRUE, maxG = 9)
+
+fviz_nbclust(scale(cdat_dend), kmeans, method = "gap_stat",k.max=15) +
+  labs(subtitle = "Silhouette method")
+fviz_nbclust(scale(cdat_iq), kmeans, method = "gap_stat",k.max=15) +
+  labs(subtitle = "Silhouette method")
+fviz_nbclust(scale(cdat_both), kmeans, method = "gap_stat",k.max=15) +
+  labs(subtitle = "Silhouette method")
+# fviz_nbclust(scale(cdat_dend), pam, method = "silhouette") +
+#   labs(subtitle = "Silhouette method")
+# fviz_nbclust(scale(cdat_iq), pam, method = "silhouette") +
+#   labs(subtitle = "Silhouette method")
+# fviz_nbclust(scale(cdat_both), pam, method = "silhouette") +
+#   labs(subtitle = "Silhouette method")
+
+
+
+# require(vegan)
+# fit <- cascadeKM(scale(cdat_both, center = TRUE,  scale = TRUE), 1, 10, iter = 1000)
+# plot(fit, sortg = TRUE, grpmts.plot = TRUE)
+# calinski.best <- as.numeric(which.max(fit$results[2,]))
+# cat("Calinski criterion optimal number of clusters:", calinski.best, "\n")
+# 
+# library("WeightedCluster")
+# hc <- hclust(dist(scale(cdat_both)))
+# hcRange <- as.clustrange(hc, diss=dist(scale(cdat_both)), ncluster=20) 
+# summary(hcRange)
+# plot(hcRange, stat = c("ASWw", "HG", "PBC"), lwd = 2)
+# 
+# library(pvclust)
+# mydata <- t(scale(cdat_both))
+# fit <- pvclust(mydata, method.hclust="ward",
+#                method.dist="euclidean")
+# plot(fit) # dendogram with p values
+# # add rectangles around groups highly supported by the data
+# pvrect(fit, alpha=.95)
+
+
+hcTree <- hc(modelName = "EEE", data = cdat_both)
+plot(hcTree, what = "loglik")
+plot(hcTree, what = "loglik", labels = TRUE)
+plot(hcTree, what = "loglik", maxG = 9, labels = TRUE)
+plot(hcTree, what = "merge")
+plot(hcTree, what = "merge", labels = TRUE)
+plot(hcTree, what = "merge", labels = TRUE, hang = 0.1)
+plot(hcTree, what = "merge", labels = TRUE, hang = -1)
+plot(hcTree, what = "merge", labels = TRUE, maxG = 9)
+
+# dend <- colour_clusters(hcTree, k=9, groupLabels=T)
+
+
+library(factoextra)
+library(MASS)
+library(ggplot2)
+# 
