@@ -232,7 +232,7 @@ ml$percent.of.different.structure <- as.numeric(as.character(ml$percent.of.diffe
 
 
 # Create training dataset
-set.seed(15)  
+set.seed(15, kind = "Mersenne-Twister", normal.kind = "Inversion")  
 ml <- ml[sample(1:nrow(ml)), ]
 ######################
 ######################
