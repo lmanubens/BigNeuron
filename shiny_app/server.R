@@ -109,8 +109,8 @@ shinyServer(function(input, output, session) {
         cat(paste0('export DISPLAY=:8463; Xvfb :8463 -auth /dev/null  > xvfblog.txt 2>&1 & Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',inFile$datapath[i],' #o ',inFile$datapath[i],'_prep.swc #l 3 #s 2 #r 1"; cat "SWCFILE=',inFile$datapath[i],'_prep.swc" > mydatabase.ano; Vaa3D/vaa3d -x blastneuron -f batch_compute -p "#i mydatabase.ano #o features.csv"; Vaa3D/vaa3d -x neuron_distance -f neuron_distance -i ',Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(inFile$name[i],"[.]")[[1]][1]), "*.swc")),' ',inFile$datapath[i],' -o dists/',i,'.txt -p 2'))
         sink()
         # zx merge all call system to one call
-        system(paste0('export DISPLAY=:8463; Xvfb :8463 -auth /dev/null  > xvfblog.txt 2>&1 & Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',inFile$datapath[i],' #o ',inFile$datapath[i],'_prep.swc #l 3 #s 2 #r 1"; echo "SWCFILE=',inFile$datapath[i],'_prep.swc" > mydatabase.ano; Vaa3D/vaa3d -x blastneuron -f batch_compute -p "#i mydatabase.ano #o features.csv"; Vaa3D/vaa3d -x /home/vaa3d/v3d_external/bin/plugins/neuron_utilities/neuron_distance/libneuron_dist.so -f neuron_distance -i ',Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(inFile$name[i],"[.]")[[1]][1]), "*.swc")),' ',inFile$datapath[i],' -o dists/',i,'.txt -p 2'))
-
+        # zx It seems that the dists folder cannot be written in shinyapp, so change path to i._dists_tmp.txt
+        system(paste0('export DISPLAY=:8463; Xvfb :8463 -auth /dev/null  > xvfblog.txt 2>&1 & Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',inFile$datapath[i],' #o ',inFile$datapath[i],'_prep.swc #l 3 #s 2 #r 1"; echo "SWCFILE=',inFile$datapath[i],'_prep.swc" > mydatabase.ano; Vaa3D/vaa3d -x blastneuron -f batch_compute -p "#i mydatabase.ano #o features.csv"; Vaa3D/vaa3d -x /home/vaa3d/v3d_external/bin/plugins/neuron_utilities/neuron_distance/libneuron_dist.so -f neuron_distance -i ',Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(inFile$name[i],"[.]")[[1]][1]), "*.swc")),' ',inFile$datapath[i],' -o ',i,'_dists_tmp.txt -p 2; echo test > dists/',i,'_dists_tmp.txt'))
         try(nbdata <-  read.csv("features.csv"))
         try(print(nbdata))
         nbdata <- nbdata[c(3:22,36)]
@@ -122,7 +122,9 @@ shinyServer(function(input, output, session) {
         # gspath <- Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(inFile$name[i],"[.]")[[1]][1]), "*.swc")) 
         # log3 <- system(paste0('Vaa3D/vaa3d -x neuron_distance -f neuron_distance -i ',gspath,' ',inFile$datapath[i],' -p 2 -o dists/',i,'.txt'),
         #                intern=T)
-        dataFile <- readLines(paste0("dists/",i,".txt"))
+        
+        #zx change path to i._dists_tmp.txt
+        dataFile <- readLines(paste0(i,"_dists_tmp.txt"))
         
         dfdist <- data.frame(esa1t2=NA,esa2t1=NA,ab_esa=NA,dsa=NA,pds1t2=NA,pds2t1=NA,a_pds=NA)
         dfdist$esa1t2 <- as.numeric(strsplit(dataFile[3],'=')[[1]][2])
