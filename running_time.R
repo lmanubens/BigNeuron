@@ -14,3 +14,4 @@ totaltime/3600 #hours
 totaltime <- sum(as.numeric(ts))/1000
 totaltime/60 #minutes
 totaltime/3600 #hours
+

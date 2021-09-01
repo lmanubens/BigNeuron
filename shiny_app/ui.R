@@ -5,7 +5,7 @@ library(rgl)
 options(shiny.maxRequestSize = 30*1024^2)
 
 shinyUI(fluidPage(
-  titlePanel("Gold166 analysis"),
+  titlePanel("Gold163 analysis"),
   fluidRow(
     column(2,     
       selectInput("variablegroups",label = h5(strong("Select for coloring")),"",selected="variablegroups"),

@@ -2,6 +2,7 @@ options("repos" = c("CRAN" = "https://cran.rstudio.com",
                     "rforge" = "http://R-Forge.R-project.org"))
 library(shiny)
 library(ggbiplot)
+# if(!require("ggbiplot")) devtools::install_github("vqv/ggbiplot")
 library(plotly)
 library(Rtsne)
 library(corrplot)
@@ -13,20 +14,22 @@ library(nat.nblast)
 library(dendroextras)
 library(dendextend)
 library(factoextra)
-# library(magick)
 library(tiff)
 library(jpeg)
 library(grid)
 library(rmarkdown)
-# library(imager)
 library(rgl)
+library(moments)
+library(mclust)
+# webshot::install_phantomjs()
+
+# library(magick)
+# library(imager)
 # library(rglwidget)
 # library(Cairo)
 # library(plyr)
 # library(orca)
 # library(ggnewscale)
-library(moments)
-library(mclust)
 # library(fpc)
 # library(cluster)
 # library(pvclust)
@@ -62,7 +65,7 @@ shinyServer(function(input, output, session) {
   upDataorig <- reactive({#if(is.null(input$file1))return(NULL) 
     #inFile <- input$file1
     #dat <- read.csv(inFile$datapath)
-    load('subsetdata.Rdata')
+    load('subsetdata_v3.Rdata')
     data <- my_data
     data[is.na(data)] <- 0
     # data <- data[complete.cases(data)==T,]
@@ -79,7 +82,7 @@ shinyServer(function(input, output, session) {
       for(i in 1:length(inFile$datapath)){
         #Xvfb :100 -ac &
         #export DISPLAY=:100.0
-        log0 <- system('Xvfb :100 -ac & export DISPLAY=:100.0', intern=T)
+        log0 <- system('export DISPLAY=:8469; Xvfb :8469 -auth /dev/null  > xvfblog.txt 2>&1 &', intern=T)
         output$console <- renderPrint({
           return(print(log0))
         })
@@ -294,18 +297,17 @@ shinyServer(function(input, output, session) {
     updateCheckboxGroupInput(
       session,
       "variableiq",
-      choices=c("Correlation","FocusScore","LocalFocusScore","MADIntensity","MaxIntensity",
+      choices=c("FocusScore","MADIntensity","MaxIntensity",
                 "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
-                "PercentMinimal","PowerLogLogSlope","StdIntensity","ThresholdOtsu",
-                "TotalArea","TotalIntensity",
-                "Correlation_swc","FocusScore_swc","LocalFocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
+                "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
                 "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
-                "PercentMinimal_swc","PowerLogLogSlope_swc","StdIntensity_swc","ThresholdOtsu_swc",
-                "TotalArea_swc","TotalIntensity_swc"),
+                "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
+                "SNR_otsu_swc","CNR_otsu_swc"),
       # choices=names(upDataorig()[29:43]),
       # selected=names(upDataorig())[-c(1,3,4,11,12,21,23,27,33,34,36)]
-      selected=c("Correlation","FocusScore","MedianIntensity","PercentMinimal","StdIntensity",
-                 "Correlation_swc","FocusScore_swc","MedianIntensity_swc","PercentMinimal_swc","StdIntensity_swc")
+      selected=c("FocusScore","MedianIntensity","PercentMinimal","StdIntensity","CNR_otsu",
+                 "FocusScore_swc","MedianIntensity_swc","PercentMinimal_swc","StdIntensity_swc","CNR_otsu_swc")
       # selected=names(upDataorig())[c(29,30,35,38,40)]
       #selected=names(upDataorig())[c(2,5,9,14,16,20,22,28,29,30,35,38,40)]
     )
@@ -801,7 +803,7 @@ shinyServer(function(input, output, session) {
       # print(memb)
       ###############
       BIC <- Mclust(scale(cdat),G=2:10)
-      # save(cdat,file="clustdat.Rdata")
+      save(cdat,file="clustdat.Rdata")
       print(BIC$classification)
       memb <- BIC$classification
       plot(mclustBIC(cdat))
@@ -1187,8 +1189,8 @@ shinyServer(function(input, output, session) {
     #     label.x = 0.85
     #   )
     # ggsave('spcorr_parentdaughterratio.pdf',width=10,height=6,device=cairo_pdf)
-    # 
-    # # ggscatter(spdata, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", color = "clust") +
+    # # 
+    # # # ggscatter(spdata, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", color = "clust") +
     # ggscatter(spdata, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", add="reg.line") +
     #   # geom_smooth(aes(group=1),color="black",method='lm')+
     #   stat_cor(
@@ -1214,6 +1216,22 @@ shinyServer(function(input, output, session) {
     #     label.x = 1.05
     #   ) #+ xlim(1,1.8)
     # ggsave('spcorr_percentminimal.pdf',width=10,height=6,device=cairo_pdf)
+    # ggscatter(spdata, x = 'FocusScore', y = "percent.of.different.structure", add="reg.line") +
+    #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    #   stat_cor(
+    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    #     label.x = 75
+    #   )
+    # ggsave('spcorr_FocusScore.pdf',width=10,height=6,device=cairo_pdf)
+    # corrp <- ggscatter(spdata, x = 'CNR_otsu', y = "percent.of.different.structure", add="reg.line") +
+    #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    #   stat_cor(
+    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    #     label.x = 2,
+    #   )
+    # ggpar(corrp,xscale="log10",xlim = c(10, 3000))
+    # corrp
+    # ggsave('spcorr_CNR_Otsu.pdf',width=10,height=6,device=cairo_pdf)
     # 
     # ggscatter(spdata, x = "Correlation_swc", y = "percent.of.different.structure", add = "reg.line") +
     #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
@@ -1243,6 +1261,7 @@ shinyServer(function(input, output, session) {
     # p <- cor.test.p(upData())
     # print(
       # ggplotly(
+    # file.remove("Clustering.pdf")
         heatmaply_cor(M,
                       # node_type = "scatter",
                       point_size_mat = -log10(p), 

@@ -6,9 +6,9 @@ library(cluster)
 
 load('shiny_app/clustdat_dend.Rdata')
 cdat_dend <- cdat
-load('shiny_app/clustdat_iq.Rdata')
+load('shiny_app/clustdat_iq_3D.Rdata')
 cdat_iq <- cdat
-load('shiny_app/clustdat_both.Rdata')
+load('shiny_app/clustdat_both_3D.Rdata')
 cdat_both <- cdat
 
 plot(mclustBIC(scale(cdat_dend),G=1:15))
@@ -32,8 +32,8 @@ fviz_nbclust(scale(cdat_both), kmeans, method = "gap_stat",k.max=15) +
 #   labs(subtitle = "Silhouette method")
 # fviz_nbclust(scale(cdat_iq), pam, method = "silhouette") +
 #   labs(subtitle = "Silhouette method")
-# fviz_nbclust(scale(cdat_both), pam, method = "silhouette") +
-#   labs(subtitle = "Silhouette method")
+fviz_nbclust(scale(cdat_both), pam, method = "silhouette",k.max=20) +
+  labs(subtitle = "Silhouette method")
 
 
 
@@ -67,6 +67,7 @@ plot(hcTree, what = "merge", labels = TRUE)
 plot(hcTree, what = "merge", labels = TRUE, hang = 0.1)
 plot(hcTree, what = "merge", labels = TRUE, hang = -1)
 plot(hcTree, what = "merge", labels = TRUE, maxG = 9)
+plot(hcTree, what = "merge", labels = TRUE, maxG = 16)
 
 # dend <- colour_clusters(hcTree, k=9, groupLabels=T)
 
