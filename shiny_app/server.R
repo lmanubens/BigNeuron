@@ -75,8 +75,14 @@ shinyServer(function(input, output, session) {
     {
       # Run blastneuron for each uploaded reconstruction
       inFile <- input$file1
+
+      #zx linus changed
+      IQpaths <- inFile$datapath[grepl(".csv",inFile$datapath)]
+      SWCpaths <- inFile$datapath[grepl(".swc",inFile$datapath)]
+      SWCnames <- inFile$name[grepl(".swc",inFile$datapath)]
       
-      for(i in 1:length(inFile$datapath)){
+      #zx change inFile$datapath to SWCpaths
+      for(i in 1:length(SWCpaths)){
         #Xvfb :100 -ac &
         #export DISPLAY=:100.0
         # log0 <- system('Xvfb :100 -ac & export DISPLAY=:100.0', intern=T)
@@ -110,7 +116,7 @@ shinyServer(function(input, output, session) {
         sink()
         # zx merge all call system to one call
         # zx It seems that the dists folder cannot be written in shinyapp, so change path to i._dists_tmp.txt
-        system(paste0('export DISPLAY=:8463; Xvfb :8463 -auth /dev/null  > xvfblog.txt 2>&1 & Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',inFile$datapath[i],' #o ',inFile$datapath[i],'_prep.swc #l 3 #s 2 #r 1"; echo "SWCFILE=',inFile$datapath[i],'_prep.swc" > mydatabase.ano; Vaa3D/vaa3d -x blastneuron -f batch_compute -p "#i mydatabase.ano #o features.csv"; Vaa3D/vaa3d -x /home/vaa3d/v3d_external/bin/plugins/neuron_utilities/neuron_distance/libneuron_dist.so -f neuron_distance -i ',Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(inFile$name[i],"[.]")[[1]][1]), "*.swc")),' ',inFile$datapath[i],' -o ',i,'_dists_tmp.txt -p 2; echo test > dists/',i,'_dists_tmp.txt'))
+        system(paste0('export DISPLAY=:8463; Xvfb :8463 -auth /dev/null  > xvfblog.txt 2>&1 & Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',SWCpaths[i],' #o ',SWCpaths[i],'_prep.swc #l 3 #s 2 #r 1"; echo "SWCFILE=',SWCpaths[i],'_prep.swc" > mydatabase.ano; Vaa3D/vaa3d -x blastneuron -f batch_compute -p "#i mydatabase.ano #o features.csv"; Vaa3D/vaa3d -x /home/vaa3d/v3d_external/bin/plugins/neuron_utilities/neuron_distance/libneuron_dist.so -f neuron_distance -i ',Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(SWCnames[i],"[.]")[[1]][1]), "*.swc")),' ',SWCpaths[i],' -o ',i,'_dists_tmp.txt -p 2; echo test > dists/',i,'_dists_tmp.txt'))
         try(nbdata <-  read.csv("features.csv"))
         try(print(nbdata))
         nbdata <- nbdata[c(3:22,36)]
@@ -137,7 +143,29 @@ shinyServer(function(input, output, session) {
         
         # Add image metrics
         # which(ids=="5") this is index for data to get image metrics
-        dfim <- data[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],29:43]
+
+        #zx change 43 to 60 because the column number of data and the column number of idata is different
+        #zx but I don't know if it is right
+        #dfim <- data[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],29:60]
+
+        #zx linus here change to it
+        dfim <- data[which(ids==strsplit(SWCnames[i],"[.]")[[1]][1])[1],c(29:54)]
+
+        IQ <- read.csv(paste0(IQpaths[i]),header=T)
+        dfim$FocusScore_swc <- IQ$FocusScore
+        dfim$MADIntensity_swc <- IQ$MADIntensity
+        dfim$MaxIntensity_swc <- IQ$MaxIntensity
+        dfim$MeanIntensity_swc <- IQ$MeanIntensity
+        dfim$MedianIntensity_swc <- IQ$MedianIntensity
+        dfim$MinIntensity_swc <- IQ$MinIntensity
+        dfim$PercentMaximal_swc <- IQ$PercentMaximal
+        dfim$PercentMinimal_swc <- IQ$PercentMinimal
+        dfim$StdIntensity_swc <- IQ$StdIntensity
+        dfim$SNR_mean_swc <- IQ$SNR_mean
+        dfim$CNR_mean_swc <- IQ$CNR_mean
+        dfim$ThresholdOtsu_swc <- IQ$ThresholdOtsu
+        dfim$SNR_otsu_swc <- IQ$SNR_otsu
+        dfim$CNR_otsu_swc <- IQ$CNR_otsu
         
         # Add row to data for each uploaded reconstruction
         idata = c(as.numeric(nbdata),as.numeric(dfdist),as.numeric(dfim))
@@ -242,16 +270,30 @@ shinyServer(function(input, output, session) {
     {
       inFile <- input$file1
 
-      for(i in 1:length(inFile$datapath)){
+      #zx linus changed
+      SWCpaths <- inFile$datapath[grepl(".swc",inFile$datapath)]
+      SWCnames <- inFile$name[grepl(".swc",inFile$datapath)]
+
+      #zx change inFile$datapath to SWCpaths
+      for(i in 1:length(SWCpaths)){
         # Get dataset, and define group, algorithm and paths
-        idataset <- groupsdf[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],1]
-        igroup <- input$inputalg
-        ialgorithm <- input$inputalg
-        ipaths <- paste0("/x/x/x/x/x/x/",strsplit(inFile$name[i],"[.]")[[1]][1])
-        iids <- strsplit(inFile$name[i],"[.]")[[1]][1]
+        # idataset <- groupsdf[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],1]
+        # igroup <- input$inputalg
+        # ialgorithm <- input$inputalg
+        # ipaths <- paste0("/x/x/x/x/x/x/",strsplit(inFile$name[i],"[.]")[[1]][1])
+        # iids <- strsplit(inFile$name[i],"[.]")[[1]][1]
+        
+        #zx this sentence make igroupsdf to same column numbers with groupsdf 
+        igroupsdf <- groupsdf[1,]
+        igroupsdf$dataset <- groupsdf[which(ids==strsplit(SWCnames[i],"[.]")[[1]][1])[1],1]
+        igroupsdf$group <- input$inputalg
+        igroupsdf$algorithm <- input$inputalg
+        igroupsdf$paths <- paste0("/x/x/x/x/x/x/",strsplit(SWCnames[i],"[.]")[[1]][1])
+        igroupsdf$ids <- strsplit(SWCnames[i],"[.]")[[1]][1]
 
         # Merge with groupsdf data
-        igroupsdf <- data.frame(dataset=idataset,group=igroup,algorithm=ialgorithm,paths=ipaths,ids=iids)
+        #igroupsdf <- data.frame(dataset=idataset,group=igroup,algorithm=ialgorithm,paths=ipaths,ids=iids)
+        
         groupsdf <- rbind(groupsdf,igroupsdf)
       }
     }
