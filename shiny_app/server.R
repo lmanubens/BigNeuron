@@ -78,8 +78,15 @@ shinyServer(function(input, output, session) {
     {
       # Run blastneuron for each uploaded reconstruction
       inFile <- input$file1
+      # print(inFile$datapath)
+      IQpaths <- inFile$datapath[grepl(".csv",inFile$datapath)]
+      SWCpaths <- inFile$datapath[grepl(".swc",inFile$datapath)]
+      # print(SWCpaths)
+      SWCnames <- inFile$name[grepl(".swc",inFile$datapath)]
+      # print(SWCnames)
       
-      for(i in 1:length(inFile$datapath)){
+      for(i in 1:length(SWCpaths)){
+        # print(SWCpaths[i])
         #Xvfb :100 -ac &
         #export DISPLAY=:100.0
         log0 <- system('export DISPLAY=:8469; Xvfb :8469 -auth /dev/null  > xvfblog.txt 2>&1 &', intern=T)
@@ -94,18 +101,18 @@ shinyServer(function(input, output, session) {
         output$console <- renderPrint({
           return(print(log0))
         })
-        log <- system(paste0('Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',inFile$datapath[i],' #o "',inFile$datapath[i],'"_prep.swc #l 3 #s 2 #r 1"'),
+        log <- system(paste0('Vaa3D/vaa3d -x blastneuron -f pre_processing -p "#i ',SWCpaths[i],' #o "',SWCpaths[i],'"_prep.swc #l 3 #s 2 #r 1"'),
                       intern=T)
         output$console <- renderPrint({
           return(print(log))
         })
-        pathswc <- data.frame(file=paste0("SWCFILE=",inFile$datapath[i],"_prep.swc"))
+        pathswc <- data.frame(file=paste0("SWCFILE=",SWCpaths[i],"_prep.swc"))
         write.table(pathswc,file="mydatabase.ano",col.names=F,row.names=F,quote=F)
         log2 <- system('Vaa3D/vaa3d -x blastneuron -f batch_compute -p \"#i mydatabase.ano #o features.csv"',
                       intern=T)
-        # output$console <- renderPrint({
-        #   return(print(log2))
-        # })
+        output$console <- renderPrint({
+          return(print(log2))
+        })
         try(nbdata <-  read.csv("features.csv"))
         try(print(nbdata))
         nbdata <- nbdata[c(3:22,36)]
@@ -114,8 +121,8 @@ shinyServer(function(input, output, session) {
         # })
         
         # Add distance metrics
-        gspath <- Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(inFile$name[i],"[.]")[[1]][1]), "*.swc")) 
-        log3 <- system(paste0('Vaa3D/vaa3d -x neuron_distance -f neuron_distance -i ',gspath,' ',inFile$datapath[i],' -p 2 -o dists/',i,'.txt'),
+        gspath <- Sys.glob(file.path(paste0("gold_163_all_soma_sort_s1_onlyswc/",strsplit(SWCnames[i],"[.]")[[1]][1]), "*.swc")) 
+        log3 <- system(paste0('Vaa3D/vaa3d -x neuron_distance -f neuron_distance -i ',gspath,' ',SWCpaths[i],' -p 2 -o dists/',i,'.txt'),
                        intern=T)
         dataFile <- readLines(paste0("dists/",i,".txt"))
         
@@ -130,11 +137,32 @@ shinyServer(function(input, output, session) {
         
         # Add image metrics
         # which(ids=="5") this is index for data to get image metrics
-        dfim <- data[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],29:43]
+        dfim <- data[which(ids==strsplit(SWCnames[i],"[.]")[[1]][1])[1],c(29:54)]
+        
+        IQ <- read.csv(paste0(IQpaths[i]),header=T)
+        dfim$FocusScore_swc <- IQ$FocusScore
+        dfim$MADIntensity_swc <- IQ$MADIntensity
+        dfim$MaxIntensity_swc <- IQ$MaxIntensity
+        dfim$MeanIntensity_swc <- IQ$MeanIntensity
+        dfim$MedianIntensity_swc <- IQ$MedianIntensity
+        dfim$MinIntensity_swc <- IQ$MinIntensity
+        dfim$PercentMaximal_swc <- IQ$PercentMaximal
+        dfim$PercentMinimal_swc <- IQ$PercentMinimal
+        dfim$StdIntensity_swc <- IQ$StdIntensity
+        dfim$SNR_mean_swc <- IQ$SNR_mean
+        dfim$CNR_mean_swc <- IQ$CNR_mean
+        dfim$ThresholdOtsu_swc <- IQ$ThresholdOtsu
+        dfim$SNR_otsu_swc <- IQ$SNR_otsu
+        dfim$CNR_otsu_swc <- IQ$CNR_otsu
         
         # Add row to data for each uploaded reconstruction
         idata = c(as.numeric(nbdata),as.numeric(dfdist),as.numeric(dfim))
+        # print(names(data))
+        # print(names(nbdata))
+        # print(names(dfdist))
+        # print(names(dfim))
         data <- rbind(data,idata)
+        # print("Rbind done")
         
         # Remove remote files
         system("rm dists/*",
@@ -234,17 +262,23 @@ shinyServer(function(input, output, session) {
     if(!is.null(input$file1))
     {
       inFile <- input$file1
+      #print(inFile$datapath)
+      SWCpaths <- inFile$datapath[grepl(".swc",inFile$datapath)]
+      SWCnames <- inFile$name[grepl(".swc",inFile$datapath)]
 
-      for(i in 1:length(inFile$datapath)){
+      for(i in 1:length(SWCpaths)){
+        igroupsdf <- groupsdf[1,]
         # Get dataset, and define group, algorithm and paths
-        idataset <- groupsdf[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],1]
-        igroup <- input$inputalg
-        ialgorithm <- input$inputalg
-        ipaths <- paste0("/x/x/x/x/x/x/",strsplit(inFile$name[i],"[.]")[[1]][1])
-        iids <- strsplit(inFile$name[i],"[.]")[[1]][1]
+        igroupsdf$dataset <- groupsdf[which(ids==strsplit(SWCnames[i],"[.]")[[1]][1])[1],1]
+        igroupsdf$group <- input$inputalg
+        igroupsdf$algorithm <- input$inputalg
+        igroupsdf$paths <- paste0("/x/x/x/x/x/x/",strsplit(SWCnames[i],"[.]")[[1]][1])
+        igroupsdf$ids <- strsplit(SWCnames[i],"[.]")[[1]][1]
 
         # Merge with groupsdf data
-        igroupsdf <- data.frame(dataset=idataset,group=igroup,algorithm=ialgorithm,paths=ipaths,ids=iids)
+        # igroupsdf <- data.frame(dataset=idataset,group=igroup,algorithm=ialgorithm,paths=ipaths,ids=iids)
+        # print(names(groupsdf))
+        # print(names(igroupsdf))
         groupsdf <- rbind(groupsdf,igroupsdf)
       }
     }
