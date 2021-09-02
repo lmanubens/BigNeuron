@@ -320,7 +320,7 @@ shinyServer(function(input, output, session) {
                 "total_length","total_surface","total_volume","max_euclidean_distance",
                 "max_path_distance","max_branch_order","average_contraction",
                 "average_fragmentation","parent_daughter_ratio","bifurcation_angle_local",
-                "bifurcation_angle_remote","ave_R","xy_pixel_size","z_pixel_size"),
+                "bifurcation_angle_remote","ave_R"),
       # selected=names(upDataorig())[-c(1,3,4,11,12,21,23,27,33,34,36)]
       selected=c("num_stems","num_of_tips","average_diameter","total_length","max_path_distance",
                  "max_branch_order","bifurcation_angle_remote")
@@ -334,6 +334,7 @@ shinyServer(function(input, output, session) {
       choices=c("FocusScore","MADIntensity","MaxIntensity",
                 "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
                 "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                "xy_pixel_size","z_pixel_size",
                 "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
                 "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
                 "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
@@ -370,9 +371,31 @@ shinyServer(function(input, output, session) {
     updateSelectInput(
       session,
       "filtermetrics",
-      choices=names(upDataorig()[c(1:21,29:43,22:28,44:58)]),
+      choices=c("soma_surface","num_stems","num_bifurcations","num_branches","num_of_tips",
+                "overall_x_span","overall_y_span","overall_z_span","average_diameter",
+                "total_length","total_surface","total_volume","max_euclidean_distance",
+                "max_path_distance","max_branch_order","average_contraction",
+                "average_fragmentation","parent_daughter_ratio","bifurcation_angle_local",
+                "bifurcation_angle_remote","ave_R",
+                "entire.structure.average..from.neuron.1.to.2.",
+                "entire.structure.average..from.neuron.2.to.1.",      
+                "average.of.bi.directional.entire.structure.averages",
+                "different.structure.average",                        
+                "percent.of.different.structure..from.neuron.1.to.2.",
+                "percent.of.different.structure..from.neuron.2.to.1.",
+                "percent.of.different.structure",
+                "FocusScore","MADIntensity","MaxIntensity",
+                "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                "xy_pixel_size","z_pixel_size",
+                "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
+                "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
+                "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
+                "SNR_otsu_swc","CNR_otsu_swc",
+                "None"
+                ),
       # choices=c(input$variablemorph,input$variabledist,input$variableiq),
-      selected='PercentMinimal'#names(upDataorig())[2]
+      selected='None'#names(upDataorig())[2]
     )
     
     updateCheckboxGroupInput(
@@ -476,7 +499,12 @@ shinyServer(function(input, output, session) {
       updateCheckboxGroupInput(
         session,
         "variablemorph",
-        choices=names(upDataorig()[c(1:21,59,60)]),
+        choices=c("soma_surface","num_stems","num_bifurcations","num_branches","num_of_tips",
+                  "overall_x_span","overall_y_span","overall_z_span","average_diameter",
+                  "total_length","total_surface","total_volume","max_euclidean_distance",
+                  "max_path_distance","max_branch_order","average_contraction",
+                  "average_fragmentation","parent_daughter_ratio","bifurcation_angle_local",
+                  "bifurcation_angle_remote","ave_R"),
         selected=c()
       )
     }
@@ -485,8 +513,18 @@ shinyServer(function(input, output, session) {
       updateCheckboxGroupInput(
         session,
         "variablemorph",
-        choices=names(upDataorig()[c(1:21,59,60)]),
-        selected=names(upDataorig()[c(1:21,59,60)])
+        choices=c("soma_surface","num_stems","num_bifurcations","num_branches","num_of_tips",
+                  "overall_x_span","overall_y_span","overall_z_span","average_diameter",
+                  "total_length","total_surface","total_volume","max_euclidean_distance",
+                  "max_path_distance","max_branch_order","average_contraction",
+                  "average_fragmentation","parent_daughter_ratio","bifurcation_angle_local",
+                  "bifurcation_angle_remote","ave_R"),
+        selected=c("soma_surface","num_stems","num_bifurcations","num_branches","num_of_tips",
+                   "overall_x_span","overall_y_span","overall_z_span","average_diameter",
+                   "total_length","total_surface","total_volume","max_euclidean_distance",
+                   "max_path_distance","max_branch_order","average_contraction",
+                   "average_fragmentation","parent_daughter_ratio","bifurcation_angle_local",
+                   "bifurcation_angle_remote","ave_R")
       )
     }
   })
@@ -497,7 +535,14 @@ shinyServer(function(input, output, session) {
       updateCheckboxGroupInput(
         session,
         "variableiq",
-        choices=names(upDataorig()[29:58]),
+        choices=c("FocusScore","MADIntensity","MaxIntensity",
+                  "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                  "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                  "xy_pixel_size","z_pixel_size",
+                  "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
+                  "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
+                  "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
+                  "SNR_otsu_swc","CNR_otsu_swc"),
         selected=c()
       )
     }
@@ -506,8 +551,44 @@ shinyServer(function(input, output, session) {
       updateCheckboxGroupInput(
         session,
         "variableiq",
-        choices=names(upDataorig()[29:58]),
-        selected=names(upDataorig()[29:58])
+        choices=c("FocusScore","MADIntensity","MaxIntensity",
+                  "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                  "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                  "xy_pixel_size","z_pixel_size",
+                  "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
+                  "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
+                  "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
+                  "SNR_otsu_swc","CNR_otsu_swc"),
+        selected=c("FocusScore","MADIntensity","MaxIntensity",
+                   "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                   "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                   "xy_pixel_size","z_pixel_size",
+                   "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
+                   "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
+                   "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
+                   "SNR_otsu_swc","CNR_otsu_swc")
+      )
+    }
+  })
+  observeEvent(input$selectvoliq,{
+    #########################################################
+    if (input$selectvoliq%%2 == 1)
+    {
+      updateCheckboxGroupInput(
+        session,
+        "variableiq",
+        choices=c("FocusScore","MADIntensity","MaxIntensity",
+                  "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                  "PercentMinimal","StdIntensity","ThresholdOtsu","SNR_mean","CNR_mean","SNR_otsu","CNR_otsu",
+                  "xy_pixel_size","z_pixel_size",
+                  "FocusScore_swc","MADIntensity_swc","MaxIntensity_swc",
+                  "MeanIntensity_swc","MedianIntensity_swc","MinIntensity_swc","PercentMaximal_swc",
+                  "PercentMinimal_swc","StdIntensity_swc","ThresholdOtsu_swc","SNR_mean_swc","CNR_mean_swc",
+                  "SNR_otsu_swc","CNR_otsu_swc"),
+        selected=c("FocusScore","MADIntensity","MaxIntensity",
+                   "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                   "PercentMinimal","StdIntensity","ThresholdOtsu","CNR_otsu",
+                   "xy_pixel_size","z_pixel_size")
       )
     }
   })
@@ -645,23 +726,32 @@ shinyServer(function(input, output, session) {
   upData <- reactive({
     dat <- upDataorig()
     dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    
-    # print(dat)
-    
-    # dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-    #                 filtdat*100/max(filtdat) <= input$range[2],]
-    # dat <- c(upDataorig()[input$variablemorph,],upDataorig()[input$variabledist,],upDataorig()[input$variableiq,])
-    dat <- dat[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                 filtdat*100/max(filtdat) <= input$range[2],3] %in% input$variablealg) &
-                 (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                   filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
-    # dat <- dat[(upDatagroups()[,3] %in% input$variablealg &
-    #               upDatagroups()[,1] %in% input$variabledat),]
-    # 
-    # dat2 <- subset(dat,select = c(input$variablemorph,input$variabledist,input$variableiq))
+    print("Filtering upData")
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      
+      # print(dat)
+      
+      # dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+      #                 filtdat*100/max(filtdat) <= input$range[2],]
+      # dat <- c(upDataorig()[input$variablemorph,],upDataorig()[input$variabledist,],upDataorig()[input$variableiq,])
+      dat <- dat[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                   filtdat*100/max(filtdat) <= input$range[2],3] %in% input$variablealg) &
+                   (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                     filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+      # dat <- dat[(upDatagroups()[,3] %in% input$variablealg &
+      #               upDatagroups()[,1] %in% input$variabledat),]
+      # 
+      # dat2 <- subset(dat,select = c(input$variablemorph,input$variabledist,input$variableiq))
+    }
+    else{
+      dat <- dat[(upDatagroups()[,3]%in% input$variablealg) &
+                   (upDatagroups()[,1] %in% input$variabledat),]
+    }
     
     dat <- dat[,apply(dat, 2, var, na.rm=TRUE) != 0]
+    
+    print("Filtered upData")
     
     return(dat)
   })
@@ -669,13 +759,19 @@ shinyServer(function(input, output, session) {
   upDataIds <- reactive({
     dat <- upDataorig()
     dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    filtdat <- as.numeric(filtdat)
-    
-    grps <- upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                             filtdat*100/max(filtdat) <= input$range[2] & 
-                             upDatagroups()[,3] %in% input$variablealg &
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      filtdat <- as.numeric(filtdat)
+      
+      grps <- upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                               filtdat*100/max(filtdat) <= input$range[2] & 
+                               upDatagroups()[,3] %in% input$variablealg &
                              upDatagroups()[,1] %in% input$variabledat ,4]
+    }
+    else{
+      grps <- upDatagroups()[upDatagroups()[,3] %in% input$variablealg &
+                               upDatagroups()[,1] %in% input$variabledat ,4]
+    }
     
     grps <- sapply(strsplit(as.character(grps),'/'), "[", 8)
     # grps <- c("1","2")
@@ -768,14 +864,21 @@ shinyServer(function(input, output, session) {
     dat <- upDataorig()
     # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
     # dat <- subset(dat,select = c(input$variablemorph,input$variabledist,input$variableiq))
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-                 filtdat*100/max(filtdat) <= input$range[2],]
     
-    groupsdf <- upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                         filtdat*100/max(filtdat) <= input$range[2] & 
-                                         upDatagroups()[,3] %in% input$variablealg &
-                                         upDatagroups()[,1] %in% input$variabledat ,]
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+                   filtdat*100/max(filtdat) <= input$range[2],]
+      
+      groupsdf <- upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                           filtdat*100/max(filtdat) <= input$range[2] & 
+                                           upDatagroups()[,3] %in% input$variablealg &
+                                           upDatagroups()[,1] %in% input$variabledat ,]
+    }
+    else{
+      groupsdf <- upDatagroups()[upDatagroups()[,3] %in% input$variablealg &
+                                   upDatagroups()[,1] %in% input$variabledat ,]
+    }
     
     # if(input$variablegroups=='clusters_dend'){
     #   dat <- upDataorig()
@@ -836,7 +939,7 @@ shinyServer(function(input, output, session) {
       # memb <- abs(memb-nclust-1)
       # print(memb)
       ###############
-      BIC <- Mclust(scale(cdat),G=2:10)
+      BIC <- Mclust(cdat,G=2:15)
       save(cdat,file="clustdat.Rdata")
       print(BIC$classification)
       memb <- BIC$classification
@@ -848,15 +951,15 @@ shinyServer(function(input, output, session) {
       # memb <- abs(memb-7-1)
       # print(memb)
       if(input$variableclust=='clusters_dend'){
-        idsclusts <- data.frame(ids=groupsdf$ids,clusters_dend=memb)
-        # save(idsclusts,file="clusters_dend.Rdata")
+        idsclusts <- data.frame(ids=groupsdf$ids,clusters_dend=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
+        save(idsclusts,file="clusters_dend.Rdata")
       }else if(input$variableclust=='clusters_IQ'){
-        idsclusts <- data.frame(ids=groupsdf$ids,clusters_IQ=memb)
-        # save(idsclusts,file="clusters_iq.Rdata")
+        idsclusts <- data.frame(ids=groupsdf$ids,clusters_IQ=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
+        save(idsclusts,file="clusters_iq.Rdata")
       }
       else{
-        idsclusts <- data.frame(ids=groupsdf$ids,clusters_both=memb)
-        # save(idsclusts,file="clusters_both.Rdata")
+        idsclusts <- data.frame(ids=groupsdf$ids,clusters_both=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
+        save(idsclusts,file="clusters_both.Rdata")
       }
       # print(idsclusts)
 
@@ -1021,14 +1124,20 @@ shinyServer(function(input, output, session) {
     dat <- upDataorig()
     # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
     
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-                 filtdat*100/max(filtdat) <= input$range[2],]
-    
-    groupsdf <- upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                 filtdat*100/max(filtdat) <= input$range[2] & 
-                                 upDatagroups()[,3] %in% input$variablealg &
-                                 upDatagroups()[,1] %in% input$variabledat ,]
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+                   filtdat*100/max(filtdat) <= input$range[2],]
+      
+      groupsdf <- upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                   filtdat*100/max(filtdat) <= input$range[2] & 
+                                   upDatagroups()[,3] %in% input$variablealg &
+                                   upDatagroups()[,1] %in% input$variabledat ,]
+    }
+    else{
+      groupsdf <- upDatagroups()[upDatagroups()[,3] %in% input$variablealg &
+                                   upDatagroups()[,1] %in% input$variabledat ,]
+    }
     
     tsnedata <- upData()
     for(i in 1:length(tsnedata)){
@@ -1046,17 +1155,28 @@ shinyServer(function(input, output, session) {
     
     tsne <- Rtsne(pca.tsnedata$x, pca = FALSE)
     # tsne <- Rtsne(tsnedata, dims = 2, perplexity=30, verbose=TRUE, max_iter = 500, check_duplicates=FALSE, num_threads=24)
-    tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
-       (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                         filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-          upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                           filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),input$variablegroups])
-    
-    colsv <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                              filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-                               upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                                filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),
-                            input$variablegroups]
+    if(input$filtermetrics != 'None'){
+      tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
+         (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                           filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
+            upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                             filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),input$variablegroups])
+      
+      colsv <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
+                                 upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                  filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),
+                              input$variablegroups]
+    }
+    else{
+      tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
+        (upDatagroups()%in%input$variablealg & 
+           upDatagroups() %in% input$variabledat),input$variablegroups])
+      
+      colsv <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg & 
+                                 upDatagroups()[,1] %in% input$variabledat),
+                              input$variablegroups]
+    }
     
     if(input$variableclust2=='clusters_dend' | input$variableclust2=='clusters_IQ' | input$variableclust2=='clusters_both'){
       # if(input$variableclust=='clusters_dend'){
@@ -1165,15 +1285,21 @@ shinyServer(function(input, output, session) {
     
     dat <- upDataorig()
     # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-                 filtdat*100/max(filtdat) <= input$range[2],]
     
-    grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                             filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-                               upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                                filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
-    
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+                   filtdat*100/max(filtdat) <= input$range[2],]
+      
+      grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                               filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
+                                 upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                  filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+    }
+    else{
+      grps <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg & 
+                                upDatagroups()[,1] %in% input$variabledat),]
+    }
     # grps <- upDatagroups()[(upDatagroups()[,3] %in% input$variablealg & 
                               # upDatagroups()[,1] %in% input$variabledat),]
     
@@ -1351,21 +1477,27 @@ shinyServer(function(input, output, session) {
     # plot(dend,horiz=T)
     
     ######## Clustering BLASTneuron
-    # dat <- upDataorig()
-    # filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    # dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-    #              filtdat*100/max(filtdat) <= input$range[2],]
-    # dat <- subset(upDataorig(),select = c(input$variablemorph))
-    # 
-    # grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-    #                                          filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-    #                           upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-    #                                            filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
-    # 
-    # cdat <- upData()
+    dat <- upDataorig()
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      # dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+      #              filtdat*100/max(filtdat) <= input$range[2],]
+      # dat <- subset(upDataorig(),select = c(input$variablemorph))
+      # 
+      grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                               filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg &
+                                upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                 filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+    }
+    else{
+      grps <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg &
+                                upDatagroups()[,1] %in% input$variabledat),]
+    }
+    
+    cdat <- upData()
     # cdat <- subset(cdat,select = c(input$variablemorph))
-    # cdat <- cdat[grps$algorithm=='Annotated',]
-    # grps <- grps[grps$algorithm=='Annotated',]
+    cdat <- cdat[grps$algorithm=='Annotated',]
+    grps <- grps[grps$algorithm=='Annotated',]
     # grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
     # rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
     # hclust <- hclust(dist(cdat),method="ward.D2")
@@ -1373,11 +1505,12 @@ shinyServer(function(input, output, session) {
     # memb <- cutree(dend, k = 7)
     # values$ids <- grps$ids
     # values$memb_dend <- abs(memb-7-1)
-    load("clusters_iq.Rdata")
+    load("clusters_dend.Rdata")
     values$ids <- idsclusts$ids
     values$memb_dend <- idsclusts$clusters_IQ
     # USArrests[memb == k,]
     # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
+    labels(dend) <- paste0(idsclusts$ids,'_',grps$dataset)
     
     par(cex=1, mar=c(3, 1, 1, 20))
     ggsave("Clustering_dend.pdf",plot(rev(dend),main="Hier. Clustering - Tree Morph. metrics",horiz=T))
@@ -1403,15 +1536,22 @@ shinyServer(function(input, output, session) {
   plotImClust <- reactive({
     ######## Clustering Images
     dat <- upDataorig()
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-                 filtdat*100/max(filtdat) <= input$range[2],]
+    
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+                   filtdat*100/max(filtdat) <= input$range[2],]
+      grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                               filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
+                                upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                 filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+    }
+    else{
+      grps <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg & 
+                                upDatagroups()[,1] %in% input$variabledat),]
+    }
     dat <- subset(upDataorig(),select = c(input$variableiq))
     
-    grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                             filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-                              upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                               filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
     
     cdat <- upData()
     cdat <- subset(cdat,select = c(input$variableiq))
@@ -1424,9 +1564,9 @@ shinyServer(function(input, output, session) {
     # saveRDS(hclust,"hclust.Rdata")
     # saveRDS(cdat,"cdat.Rdata")
     # saveRDS(grps$ids,"cids.Rdata")
-    dend <- colour_clusters(hclust, k=7, groupLabels=T)
-    memb <- cutree(dend, k=7)
-    values$memb_iq <- abs(memb-7-1)
+    dend <- colour_clusters(hclust, k=5, groupLabels=T)
+    memb <- cutree(dend, k=5)
+    values$memb_iq <- abs(memb-5-1)
     # cdat[memb == k, , drop = FALSE]
     # dend <- colour_clusters(hclust, k=7, groupLabels=T)
     # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
@@ -1455,15 +1595,20 @@ shinyServer(function(input, output, session) {
   plotBothClust <- reactive({
     ######## Clustering Images
     dat <- upDataorig()
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-                 filtdat*100/max(filtdat) <= input$range[2],]
+    if(input$filtermetrics!='None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+                   filtdat*100/max(filtdat) <= input$range[2],]
+      grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                               filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
+                                upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                 filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+    }
+    else{
+      grps <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg & 
+                                upDatagroups()[,1] %in% input$variabledat),]
+    }
     dat <- subset(upDataorig(),select = c(input$variableiq))
-    
-    grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                             filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-                              upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                               filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
     
     cdat <- upData()
     cdat <- subset(cdat,select = c(input$variablemorph,input$variableiq))
@@ -2025,15 +2170,21 @@ shinyServer(function(input, output, session) {
     
     dat <- upDataorig()
     # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
-    filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
-    # subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))[,which(names(dat)==input$filtermetrics)]
-    dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
-                 filtdat*100/max(filtdat) <= input$range[2],]
-
-    grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                             filtdat*100/max(filtdat) <= input$range[2],3] %in% input$variablealg) &
-                              (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                               filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+    if(input$filtermetrics != 'None'){
+      filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
+      # subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))[,which(names(dat)==input$filtermetrics)]
+      dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
+                   filtdat*100/max(filtdat) <= input$range[2],]
+  
+      grps <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                               filtdat*100/max(filtdat) <= input$range[2],3] %in% input$variablealg) &
+                                (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+                                                 filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),]
+    }
+    else{
+      grps <- upDatagroups()[(upDatagroups()[,3] %in% input$variablealg) &
+                               (upDatagroups()[,1] %in% input$variabledat),]
+    }
     # grps <- upDatagroups()[(upDatagroups()[,3] %in% input$variablealg & upDatagroups()[,1] %in% input$variabledat),]
     # dat <- upDataorig()
     # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))

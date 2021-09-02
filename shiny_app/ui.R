@@ -15,7 +15,9 @@ shinyUI(fluidPage(
       checkboxGroupInput("variabledist", "Reconstruction quality","",selected="variabledist"),
       actionLink("selectall2","Select All"),
       checkboxGroupInput("variableiq", "Image quality","",selected="variableiq"),
-      actionLink("selectall3","Select All")
+      actionLink("selectall3","Select All"),
+      h5(""),
+      actionLink("selectvoliq","Select only volumes IQ")
     #selectInput("variable",label = h5("Variables for PCA"),"",multiple=T)
     ),
     column(10,
