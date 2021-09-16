@@ -66,13 +66,20 @@ shinyServer(function(input, output, session) {
     #inFile <- input$file1
     #dat <- read.csv(inFile$datapath)
     load('subsetdata_v3.Rdata')
+    my_data$SNR_mean[is.na(my_data$SNR_mean)] <- 3e3
+    my_data$CNR_mean[is.na(my_data$CNR_mean)] <- 3e3
+
+    my_data$SNR_otsu[is.na(my_data$SNR_otsu)] <- 3e3
+    my_data$SNR_otsu[my_data$SNR_otsu>1e10] <- 3e3
+    my_data$CNR_otsu[is.na(my_data$CNR_otsu)] <- 3e3
+    
     data <- my_data
     data[is.na(data)] <- 0
     # data <- data[complete.cases(data)==T,]
     load('groupsdf.Rdata')
     # groupsdf <- groupsdf[complete.cases(my_data)==T,]
     ids <- sapply(strsplit(as.character(groupsdf$paths),'/'), "[", 8)
-    data <- data[ids!='9',]
+    # data <- data[ids!='9',]
     
     if(!is.null(input$file1))
     {
@@ -175,7 +182,6 @@ shinyServer(function(input, output, session) {
       
     }
     
-    
     return(data)
   })
   
@@ -203,8 +209,8 @@ shinyServer(function(input, output, session) {
     load('groupsdf.Rdata')
     groupsdf$algorithm[groupsdf$algorithm=="app2"] <- "none"#"app2"
     groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "none"#"app2"
-    groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "none"#"app2"
-    groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+    groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
+    groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "none"#"app2"
     groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
     groupsdf$algorithm[groupsdf$algorithm=="Advantra_updated"] <- "Advantra"
     groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
@@ -238,7 +244,7 @@ shinyServer(function(input, output, session) {
     groupsdf$dataset[groupsdf$dataset=="janelia_flylight_part2"] <- "Flylight"
     groupsdf$dataset[groupsdf$dataset=="mouse_culturedcell_Cambridge_in_vivo_2_photon_PAGFP"] <- "Mouse cultured CU"
     groupsdf$dataset[groupsdf$dataset=="mouse_korea"] <- "Mouse KIT"
-    groupsdf$dataset[groupsdf$dataset=="mouse_RGC_UW"] <- "Mouse RGC UW"
+    groupsdf$dataset[groupsdf$dataset=="mouse_RGC_uw"] <- "Mouse RGC UW"
     groupsdf$dataset[groupsdf$dataset=="mouse_tufts"] <- "Mouse Allen"
     groupsdf$dataset[groupsdf$dataset=="silkmoth_utokyo"] <- "Silkmoth UT"
     groupsdf$dataset[groupsdf$dataset=="taiwan_flycirciut"] <- "Flycircuit"
@@ -247,17 +253,24 @@ shinyServer(function(input, output, session) {
     groupsdf$dataset[groupsdf$dataset=="zebrafish_horizontal_cells_UW"] <- "Zebrafish HC UW"
     groupsdf$dataset[groupsdf$dataset=="zebrafish_larve_RGC_UW"] <- "Zebrafish larvae RGC UW"
     
-    load('subsetdata.Rdata')
-    data <- my_data
+    load('subsetdata_v3.Rdata')
+    my_data$SNR_mean[is.na(my_data$SNR_mean)] <- 3e3
+    my_data$CNR_mean[is.na(my_data$CNR_mean)] <- 3e3
+    
+    my_data$SNR_otsu[is.na(my_data$SNR_otsu)] <- 3e3
+    my_data$SNR_otsu[my_data$SNR_otsu>1e10] <- 3e3
+    my_data$CNR_otsu[is.na(my_data$CNR_otsu)] <- 3e3
+    
+    # data <- my_data
     # is.na(data)<-sapply(data, is.infinite)
-    data[is.na(data)] <- 0
+    # data[is.na(data)] <- 0
     # data <- data[complete.cases(data)==T,]
     # load('groupsdf.Rdata')
     # groupsdf <- groupsdf[complete.cases(my_data)==T,]
     
     ids <- sapply(strsplit(as.character(groupsdf$paths),'/'), "[", 8)
     groupsdf$ids <- ids
-    groupsdf <- groupsdf[ids!='9',]
+    # groupsdf <- groupsdf[ids!='9',]
     
     if(!is.null(input$file1))
     {
@@ -745,11 +758,12 @@ shinyServer(function(input, output, session) {
       # dat2 <- subset(dat,select = c(input$variablemorph,input$variabledist,input$variableiq))
     }
     else{
+      print(unique(upDatagroups()[,1]))
       dat <- dat[(upDatagroups()[,3]%in% input$variablealg) &
                    (upDatagroups()[,1] %in% input$variabledat),]
     }
     
-    dat <- dat[,apply(dat, 2, var, na.rm=TRUE) != 0]
+    # dat <- dat[,apply(dat, 2, var, na.rm=TRUE) != 0]
     
     print("Filtered upData")
     
@@ -847,7 +861,9 @@ shinyServer(function(input, output, session) {
   # output$PCA <- renderPlotly({
   plotPCA <- reactive({
     pcadata <- upData()
+    print("PCA preproc")
     # print(length(pcadata))
+    pcadata <- pcadata[,apply(pcadata, 2, var, na.rm=TRUE) != 0]
     for(i in 1:length(pcadata)){
       if(skewness(pcadata[,i]) > 1){
         pcadata[,i] <- log10(pcadata[,i])
@@ -860,6 +876,8 @@ shinyServer(function(input, output, session) {
     pcadata[pcadata=='-Inf']<-0
     
     upData.pca <- prcomp(pcadata, scale = TRUE)
+    
+    print("PCA done")
     
     dat <- upDataorig()
     # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
@@ -939,11 +957,12 @@ shinyServer(function(input, output, session) {
       # memb <- abs(memb-nclust-1)
       # print(memb)
       ###############
-      BIC <- Mclust(cdat,G=2:15)
-      save(cdat,file="clustdat.Rdata")
+      BIC <- Mclust(scale(cdat),G=2:15)
+      # save(cdat,file="clustdat.Rdata")
       print(BIC$classification)
+      print(BIC$modelName)
       memb <- BIC$classification
-      plot(mclustBIC(cdat))
+      plot(mclustBIC(scale(cdat)))
       ##############
       # hclust <- hclust(dist(cdat),method="ward.D2")
       # dend <- colour_clusters(hclust, k=7, groupLabels=T)
@@ -952,14 +971,17 @@ shinyServer(function(input, output, session) {
       # print(memb)
       if(input$variableclust=='clusters_dend'){
         idsclusts <- data.frame(ids=groupsdf$ids,clusters_dend=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
-        save(idsclusts,file="clusters_dend.Rdata")
+        # save(idsclusts,file="clusters_dend.Rdata")
+        # save(cdat,file="clustdat_dend_3D.Rdata")
       }else if(input$variableclust=='clusters_IQ'){
         idsclusts <- data.frame(ids=groupsdf$ids,clusters_IQ=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
-        save(idsclusts,file="clusters_iq.Rdata")
+        # save(idsclusts,file="clusters_iq.Rdata")
+        # save(cdat,file="clustdat_iq_3D.Rdata")
       }
       else{
         idsclusts <- data.frame(ids=groupsdf$ids,clusters_both=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
-        save(idsclusts,file="clusters_both.Rdata")
+        # save(idsclusts,file="clusters_both.Rdata")
+        # save(cdat,file="clustdat_both_3D.Rdata")
       }
       # print(idsclusts)
 
@@ -1004,7 +1026,7 @@ shinyServer(function(input, output, session) {
         # ylim(-5,5) +
         # geom_polygon
         theme_classic() +
-        scale_color_manual(name="Dataset", values=c('#fc8d62','#76e2be','#3eb58d','#66c2a5','#54a389','#a6d854','#b3b3b3','#ffd92f','#e5c494','#e09e46','#c19963','#e78ac3','#a6bde8','#8da0cb','#6691dd')) +  
+        scale_color_manual(name="Dataset", values=c('#fc8d62','#fc8d62','#76e2be','#3eb58d','#66c2a5','#54a389','#a6d854','#b3b3b3','#ffd92f','#e5c494','#e09e46','#c19963','#e78ac3','#a6bde8','#8da0cb','#6691dd')) +  
         geom_point(aes(colour=colsv),size=1.7) +
         # theme_classic(base_family = 'Arial') +
         theme(aspect.ratio=1) #+
@@ -1051,6 +1073,7 @@ shinyServer(function(input, output, session) {
   
   plotPCAdim1 <- reactive({
     pcadata <- upData()
+    pcadata <- pcadata[,apply(pcadata, 2, var, na.rm=TRUE) != 0]
     for(i in 1:length(pcadata)){
       if(skewness(pcadata[,i]) > 1){
         pcadata[,i] <- log10(pcadata[,i])
@@ -1083,6 +1106,7 @@ shinyServer(function(input, output, session) {
   
   plotPCAdim2 <- reactive({
     pcadata <- upData()
+    pcadata <- pcadata[,apply(pcadata, 2, var, na.rm=TRUE) != 0]
     for(i in 1:length(pcadata)){
       if(skewness(pcadata[,i]) > 1){
         pcadata[,i] <- log10(pcadata[,i])
@@ -1117,13 +1141,49 @@ shinyServer(function(input, output, session) {
   ################
   # output$tSNE <- renderPlotly({
   plottSNE <-  reactive({
-    #upData.pca <- prcomp(upData(), scale = TRUE)
-    # colors = rainbow(length(unique(upDatagroups()[,input$variablegroups])))
-    # names(colors) = unique(upDatagroups()[,input$variablegroups])
     
-    dat <- upDataorig()
-    # dat <- subset(upDataorig(),select = c(input$variablemorph,input$variabledist,input$variableiq))
+    tsnedata <- upData()
+    tsnedata <- tsnedata[,apply(tsnedata, 2, var, na.rm=TRUE) != 0]
+    for(i in 1:length(tsnedata)){
+      if(skewness(tsnedata[,i])>1){
+        tsnedata[,i] <- log10(tsnedata[,i])
+      }
+      else if(skewness(tsnedata[,i])<(-1)){
+        tsnedata[,i] <- log10(max(tsnedata[,i]+1) - tsnedata[,i])
+      }
+    }
+    tsnedata[is.na(tsnedata)]<-0
+    tsnedata[tsnedata=='-Inf']<-0
     
+    # pca.tsnedata <- prcomp(tsnedata, scale = TRUE)
+    dups <- duplicated(tsnedata)
+    tsnedata <- as.matrix(unique(tsnedata))
+    
+    # tsne <- Rtsne(pca.tsnedata$x, pca = FALSE)
+    tsne <- Rtsne(tsnedata)
+    # tsne <- Rtsne(tsnedata, dims = 2, perplexity=30, verbose=TRUE, max_iter = 500, check_duplicates=FALSE, num_threads=24)
+    # if(input$filtermetrics != 'None'){
+    #   tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
+    #      (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+    #                        filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg &
+    #         upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+    #                          filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),input$variablegroups])
+    # 
+    #   colsv <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+    #                                             filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg &
+    #                              upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
+    #                                               filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),
+    #                           input$variablegroups]
+    # }
+    # else{
+    #   tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
+    #     (upDatagroups()%in%input$variablealg &
+    #        upDatagroups() %in% input$variabledat),input$variablegroups])
+    # 
+    #   colsv <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg &
+    #                              upDatagroups()[,1] %in% input$variabledat),
+    #                           input$variablegroups]
+    # }
     if(input$filtermetrics != 'None'){
       filtdat <- dat[,which(names(dat) %in% input$filtermetrics)]
       dat <- dat[input$range[1] <= filtdat*100/max(filtdat) &
@@ -1139,44 +1199,10 @@ shinyServer(function(input, output, session) {
                                    upDatagroups()[,1] %in% input$variabledat ,]
     }
     
-    tsnedata <- upData()
-    for(i in 1:length(tsnedata)){
-      if(skewness(tsnedata[,i])>1){
-        tsnedata[,i] <- log10(tsnedata[,i])
-      }
-      else if(skewness(tsnedata[,i])<(-1)){
-        tsnedata[,i] <- log10(max(tsnedata[,i]+1) - tsnedata[,i])
-      }
-    }
-    tsnedata[is.na(tsnedata)]<-0
-    tsnedata[tsnedata=='-Inf']<-0
+    colsv <- groupsdf[,input$variablegroups]
+    colsv <- colsv[!dups]
     
-    pca.tsnedata <- prcomp(tsnedata, scale = TRUE)
-    
-    tsne <- Rtsne(pca.tsnedata$x, pca = FALSE)
-    # tsne <- Rtsne(tsnedata, dims = 2, perplexity=30, verbose=TRUE, max_iter = 500, check_duplicates=FALSE, num_threads=24)
-    if(input$filtermetrics != 'None'){
-      tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
-         (upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                           filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-            upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                             filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),input$variablegroups])
-      
-      colsv <- upDatagroups()[(upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                                filtdat*100/max(filtdat) <= input$range[2],3]%in%input$variablealg & 
-                                 upDatagroups()[input$range[1] <= filtdat*100/max(filtdat) &
-                                                  filtdat*100/max(filtdat) <= input$range[2],1] %in% input$variabledat),
-                              input$variablegroups]
-    }
-    else{
-      tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = upDatagroups()[
-        (upDatagroups()%in%input$variablealg & 
-           upDatagroups() %in% input$variabledat),input$variablegroups])
-      
-      colsv <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg & 
-                                 upDatagroups()[,1] %in% input$variabledat),
-                              input$variablegroups]
-    }
+    tsne_plot <- data.frame(x = tsne$Y[,1], y = tsne$Y[,2], col = colsv)
     
     if(input$variableclust2=='clusters_dend' | input$variableclust2=='clusters_IQ' | input$variableclust2=='clusters_both'){
       # if(input$variableclust=='clusters_dend'){
@@ -1312,25 +1338,25 @@ shinyServer(function(input, output, session) {
       grps$clust[i] <- idsclusts$clusters_both[which(idsclusts$ids == grps[i,]$ids)]
     }
     
-    data <- upData()
-    
-    data <- cbind(upData(),grps[,1:3])
-
-    data$dataset <- as.numeric(as.factor(data$dataset))
-    data$group <- as.numeric(data$group)
-    data$algorithm <- as.numeric(data$algorithm)
-
-    spdata <- cbind(upData(),grps[,1:3])
-    spdata$clust <- as.factor(grps$clust)
-    spdata <- subset(spdata,spdata$algorithm == 'Consensus')
-    # spdata <- plyr::rename(spdata,c('percent.of.different.structure'='percent_of_different_structure'))
-    # sp <- ggscatter(spdata, x = "Correlation", y = 'percent_of_different_structure',
-    #                 color = "dataset", palette = "jco",
-    #                 add = "reg.line", conf.int = TRUE)
-    # sp + stat_cor(aes(color = dataset), label.x = 3) + xlim(0,1)
-    print(spdata)
-    print("N")
-    print(length(spdata$clust))
+    # data <- upData()
+    # 
+    # data <- cbind(upData(),grps[,1:3])
+    # 
+    # data$dataset <- as.numeric(as.factor(data$dataset))
+    # data$group <- as.numeric(data$group)
+    # data$algorithm <- as.numeric(data$algorithm)
+    # 
+    # spdata <- cbind(upData(),grps[,1:3])
+    # spdata$clust <- as.factor(grps$clust)
+    # spdata <- subset(spdata,spdata$algorithm == 'Consensus')
+    # # spdata <- plyr::rename(spdata,c('percent.of.different.structure'='percent_of_different_structure'))
+    # # sp <- ggscatter(spdata, x = "Correlation", y = 'percent_of_different_structure',
+    # #                 color = "dataset", palette = "jco",
+    # #                 add = "reg.line", conf.int = TRUE)
+    # # sp + stat_cor(aes(color = dataset), label.x = 3) + xlim(0,1)
+    # print(spdata)
+    # print("N")
+    # print(length(spdata$clust))
 
     # ggscatter(spdata, x = "Correlation", y = "percent.of.different.structure", add="reg.line") +
     # # ggscatter(spdata, x = "Correlation", y = "percent.of.different.structure", color = "clust") +
@@ -1412,8 +1438,11 @@ shinyServer(function(input, output, session) {
     # ggsave('spcorr_medint.pdf',width=10,height=6,device=cairo_pdf)
     
     data <- upData()
+    data <- data[,apply(data, 2, var, na.rm=TRUE) != 0]
     
     print(data)
+    
+    
     
     M <- cor(data)
     p <- cor.test.p(data)
@@ -1495,7 +1524,8 @@ shinyServer(function(input, output, session) {
     }
     
     cdat <- upData()
-    # cdat <- subset(cdat,select = c(input$variablemorph))
+    cdat <- subset(cdat,select = c(input$variablemorph))
+    cdat <- cdat[,apply(cdat, 2, var, na.rm=TRUE) != 0]
     cdat <- cdat[grps$algorithm=='Annotated',]
     grps <- grps[grps$algorithm=='Annotated',]
     # grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
@@ -1505,12 +1535,31 @@ shinyServer(function(input, output, session) {
     # memb <- cutree(dend, k = 7)
     # values$ids <- grps$ids
     # values$memb_dend <- abs(memb-7-1)
-    load("clusters_dend.Rdata")
-    values$ids <- idsclusts$ids
-    values$memb_dend <- idsclusts$clusters_IQ
+    # load("clusters_dend.Rdata")
+    # values$ids <- idsclusts$ids
+    # values$memb_dend <- idsclusts$clusters_IQ
     # USArrests[memb == k,]
     # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
-    labels(dend) <- paste0(idsclusts$ids,'_',grps$dataset)
+    
+    BIC <- Mclust(scale(cdat), G=1:15)
+    # save(cdat,file="clustdat.Rdata")
+    print(BIC$classification)
+    print(BIC$modelName)
+    memb1 <- BIC$classification
+    
+    rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
+    # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
+    hclust <- hclust(dist(scale(cdat)),method="ward.D2")
+    dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
+    memb <- cutree(dend, k = max(BIC$classification))
+    
+    values$ids <- grps$ids
+    values$memb_dend <- memb1
+    
+    idsclusts <- data.frame(ids=grps$ids,clusters_dend=memb1,label=paste0(grps$ids,'_',grps$dataset))
+    save(idsclusts,file="clusters_dend.Rdata")
+    
+    # labels(dend) <- paste0(grps$ids,'_',grps$dataset)
     
     par(cex=1, mar=c(3, 1, 1, 20))
     ggsave("Clustering_dend.pdf",plot(rev(dend),main="Hier. Clustering - Tree Morph. metrics",horiz=T))
@@ -1555,21 +1604,40 @@ shinyServer(function(input, output, session) {
     
     cdat <- upData()
     cdat <- subset(cdat,select = c(input$variableiq))
+    cdat <- cdat[,apply(cdat, 2, var, na.rm=TRUE) != 0]
     cdat <- cdat[grps$algorithm=='Annotated',]
     grps <- grps[grps$algorithm=='Annotated',]
-    grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
-    rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
+    # grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
+    # rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
     # print(rownames(cdat))
-    hclust <- hclust(dist(cdat),method="ward.D2")
+    # hclust <- hclust(dist(cdat),method="ward.D2")
     # saveRDS(hclust,"hclust.Rdata")
     # saveRDS(cdat,"cdat.Rdata")
     # saveRDS(grps$ids,"cids.Rdata")
-    dend <- colour_clusters(hclust, k=5, groupLabels=T)
-    memb <- cutree(dend, k=5)
-    values$memb_iq <- abs(memb-5-1)
+    # dend <- colour_clusters(hclust, k=5, groupLabels=T)
+    # memb <- cutree(dend, k=5)
+    # values$memb_iq <- abs(memb-5-1)
     # cdat[memb == k, , drop = FALSE]
     # dend <- colour_clusters(hclust, k=7, groupLabels=T)
     # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
+    
+    BIC <- Mclust(scale(cdat), G=1:15)
+    # save(cdat,file="clustdat.Rdata")
+    print(BIC$classification)
+    print(BIC$modelName)
+    memb1 <- BIC$classification
+    
+    rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
+    # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
+    hclust <- hclust(dist(scale(cdat)),method="ward.D2")
+    dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
+    memb <- cutree(dend, k = max(BIC$classification))
+    
+    values$memb_iq <- memb1
+    # labels(dend) <- paste0(grps$ids,'_',grps$dataset)
+    
+    idsclusts <- data.frame(ids=grps$ids,clusters_IQ=memb1,label=paste0(grps$ids,'_',grps$dataset))
+    save(idsclusts,file="clusters_iq.Rdata")
     
     par(cex=1, mar=c(3, 1, 1, 20))
     ggsave("Clustering_IQ.pdf",plot(rev(dend),main="Hier. Clustering - Im. Qual. metrics",horiz=T))
@@ -1608,25 +1676,45 @@ shinyServer(function(input, output, session) {
       grps <- upDatagroups()[(upDatagroups()[,3]%in%input$variablealg & 
                                 upDatagroups()[,1] %in% input$variabledat),]
     }
-    dat <- subset(upDataorig(),select = c(input$variableiq))
+    dat <- subset(upDataorig(),select = c(input$variablemorph,input$variableiq))
     
     cdat <- upData()
     cdat <- subset(cdat,select = c(input$variablemorph,input$variableiq))
-    cdat <- cdat[grps$algorithm=='Annotated',]
-    grps <- grps[grps$algorithm=='Annotated',]
-    grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
+    cdat <- cdat[,apply(cdat, 2, var, na.rm=TRUE) != 0]
+    # cdat <- cdat[grps$algorithm=='Annotated',]
+    # grps <- grps[grps$algorithm=='Annotated',]
+    # grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
+    # rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
+    # # print(rownames(cdat))
+    # hclust <- hclust(dist(cdat),method="ward.D2")
+    # # saveRDS(hclust,"hclust.Rdata")
+    # # saveRDS(cdat,"cdat.Rdata")
+    # # saveRDS(grps$ids,"cids.Rdata")
+    # # cdat[memb == k, , drop = FALSE]
+    # # dend <- colour_clusters(hclust, k=length(unique(input$variabledat)), groupLabels=T)
+    # dend <- colour_clusters(hclust, k=7, groupLabels=T)
+    # # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
+    # memb <- cutree(dend, k=7)#length(unique(input$variabledat)))
+    # values$memb_both <- abs(memb-7-1)
+    
+    
+    BIC <- Mclust(scale(cdat), G=1:15)
+    # save(cdat,file="clustdat.Rdata")
+    print(BIC$classification)
+    print(BIC$modelName)
+    memb1 <- BIC$classification
+    
     rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
-    # print(rownames(cdat))
-    hclust <- hclust(dist(cdat),method="ward.D2")
-    # saveRDS(hclust,"hclust.Rdata")
-    # saveRDS(cdat,"cdat.Rdata")
-    # saveRDS(grps$ids,"cids.Rdata")
-    # cdat[memb == k, , drop = FALSE]
-    # dend <- colour_clusters(hclust, k=length(unique(input$variabledat)), groupLabels=T)
-    dend <- colour_clusters(hclust, k=7, groupLabels=T)
-    # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
-    memb <- cutree(dend, k=7)#length(unique(input$variabledat)))
-    values$memb_both <- abs(memb-7-1)
+    # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
+    hclust <- hclust(dist(scale(cdat)),method="ward.D2")
+    dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
+    memb <- cutree(dend, k = max(BIC$classification))
+    
+    values$memb_both <- memb
+    # labels(dend) <- paste0(grps$ids,'_',grps$dataset)
+    
+    idsclusts <- data.frame(ids=grps$ids,clusters_both=memb1,label=paste0(grps$ids,'_',grps$dataset))
+    save(idsclusts,file="clusters_both.Rdata")
     
     par(cex=1, mar=c(3, 1, 1, 20))
     ggsave("Clustering_Both.pdf",plot(rev(dend),main="Hier. Clustering - Both metrics",horiz=T))
@@ -2203,8 +2291,8 @@ shinyServer(function(input, output, session) {
     
     pdata <- cbind(upData(),grps)
     # pdata <- arrange(pdata,pdata[,which(names(pdata)=='average of bi-directional entire-structure-averages')])
-    pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
-    # pdata$dists <- pdata[,which(names(pdata)=='percent.of.different.structure')]
+    # pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
+    pdata$dists <- pdata[,which(names(pdata)=='percent.of.different.structure')]
     # pdata$dists <- pdata[,which(names(pdata)=='entire.structure.average..from.neuron.1.to.2.')]
     
     
@@ -2252,7 +2340,7 @@ shinyServer(function(input, output, session) {
       #            width=0.8,position = position_dodge()) +
       #   coord_flip() +
       #   geom_errorbar()
-      ggbarplot(pdata, x = "algorithm", y = "dists",
+    p <- ggbarplot(pdata, x = "algorithm", y = "dists",
                 order = arrange(ppdata,ppdata$x)$Group.1,
                 # order = arrange(ppdata,desc(ppdata$x))$Group.1,
                 # orientation = "horiz",
@@ -2260,13 +2348,15 @@ shinyServer(function(input, output, session) {
                 fill="steelblue",
                 # order = as.character(unique(arrange(pdata,pdata$dists)$algorithm)),
                 # order = reorder(algorithm,dists),
-                ylab= 'average of bi-directional entire-structure-average distances',
-                # ylab= 'percent of different structure',
+                # ylab= 'average of bi-directional entire-structure-average distances',
+                ylab= 'percent of different structure',
                 # ylab= 'entire structure average from neuron 1 to 2',
                 add = "mean_se") +
         theme(text = element_text(size=8),
               axis.text.x = element_text(angle=45, hjust=1),
               legend.position="none")
+    save(p,file = "plot_dists.Rdata")
+    p
     # )
   })
   
