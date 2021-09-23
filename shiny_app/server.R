@@ -940,6 +940,7 @@ shinyServer(function(input, output, session) {
         cdat <- pcadata[,which(names(pcadata) %in% input$variablemorph | names(pcadata) %in% input$variableiq)]
       }
 
+      # cdat <- cdat[,apply(cdat, 2, var, na.rm=TRUE) != 0]
       # cdat <- cdat[groupsdf$algorithm=='Annotated',]
       # grps <- groupsdf[groupsdf$algorithm=='Annotated',]
       groupsdf$ids <-  sapply(strsplit(as.character(groupsdf$paths),'/'),"[", 8)
@@ -981,7 +982,7 @@ shinyServer(function(input, output, session) {
       else{
         idsclusts <- data.frame(ids=groupsdf$ids,clusters_both=memb,label=paste0(groupsdf$ids,'_',groupsdf$dataset))
         # save(idsclusts,file="clusters_both.Rdata")
-        # save(cdat,file="clustdat_both_3D.Rdata")
+        save(cdat,file="clustdat_both_3D.Rdata")
       }
       # print(idsclusts)
 
