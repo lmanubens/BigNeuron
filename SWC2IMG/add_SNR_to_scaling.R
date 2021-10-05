@@ -7,7 +7,7 @@ for(i in scaling$id){
   scaling$mean[scaling$id == i] <- iq$MeanIntensity
   scaling$SNR_otsu[scaling$id == i] <- iq$SNR_otsu
   scaling$otsu[scaling$id == i] <- iq$ThresholdOtsu
-  scaling$maxint[scaling$id == i] <- iq$MaxIntensity
+  scaling$maxint[scaling$id == i] <- iq$MinIntensity
 }
 
 write.csv(scaling, file="scaling_gold_SNR.csv")
