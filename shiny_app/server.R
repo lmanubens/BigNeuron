@@ -207,10 +207,10 @@ shinyServer(function(input, output, session) {
   
   upDatagroups <- reactive({
     load('groupsdf.Rdata')
-    groupsdf$algorithm[groupsdf$algorithm=="app2"] <- "none"#"app2"
-    groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "none"#"app2"
-    groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
-    groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "none"#"app2"
+    # groupsdf$algorithm[groupsdf$algorithm=="app2"] <- "none"#"app2"
+    # groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "none"#"app2"
+    # groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
+    # groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "none"#"app2"
     groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
     groupsdf$algorithm[groupsdf$algorithm=="Advantra_updated"] <- "Advantra"
     groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
@@ -218,8 +218,8 @@ shinyServer(function(input, output, session) {
     groupsdf$algorithm[groupsdf$algorithm=="pyzh"] <- "none"
     groupsdf$algorithm[groupsdf$algorithm=="pyzh_updated"] <- "pyzh"
     groupsdf$algorithm[groupsdf$algorithm=="LCMboost"] <- "nones"
-    groupsdf$algorithm[groupsdf$algorithm=="LCMboost_updated"] <- "none"#"LCMboost"
-    groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+    groupsdf$algorithm[groupsdf$algorithm=="LCMboost_updated"] <- "LCMboost"
+    # groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
     groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree"] <- "none"
     groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree_updated"] <- "fastmarching_spanningtree"
     groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer"] <- "none"
@@ -230,8 +230,9 @@ shinyServer(function(input, output, session) {
     groupsdf$algorithm[groupsdf$algorithm=="meanshift_updated"] <- "meanshift"
     groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree"] <- "none"
     groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree_updated"] <- "NeuroGPSTree"
-    groupsdf$algorithm[groupsdf$algorithm=="EnsembleNeuronTracerBasic"] <- "none"
-    groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "EnsembleNeuronTracerBasic"
+    # groupsdf$algorithm[groupsdf$algorithm=="EnsembleNeuronTracerBasic"] <- "none"
+    # groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "EnsembleNeuronTracerBasic"
+    groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "ENT"
     
     groupsdf$dataset <- substring(groupsdf$dataset,12)
     
@@ -414,9 +415,9 @@ shinyServer(function(input, output, session) {
     updateCheckboxGroupInput(
       session,
       "variablealg",
-      choices=c("Advantra","Annotated","app1","app2","axis_analyzer","Consensus",                
-                "Cwlab_ver1","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
-                "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost",                 
+      choices=c("Advantra","Annotated","app1","app2","app2new1","app2new2","app2new3","axis_analyzer","Consensus",                
+                "Cwlab_ver1","ENT","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
+                "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost","LCMboost_3",                 
                 "meanshift","MOST","MST_Tracing","nctuTW","nctuTW_GD","NeuroGPSTree",             
                 "NeuronChaser","NeuroStalker","neutu_autotrace","neutube","pyzh","Rayshooting",              
                 "Rivulet","Rollerball","simple","smartTracing","snake","tubularity_model_S",       
@@ -633,9 +634,9 @@ shinyServer(function(input, output, session) {
       updateCheckboxGroupInput(
         session,
         "variablealg",
-        choices=c("Advantra","Annotated","app1","app2","axis_analyzer","Consensus",                
-                  "Cwlab_ver1","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
-                  "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost",                 
+        choices=c("Advantra","Annotated","app1","app2","app2new1","app2new2","app2new3","axis_analyzer","Consensus",                
+                  "Cwlab_ver1","ENT","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
+                  "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost","LCMboost_3",                 
                   "meanshift","MOST","MST_Tracing","nctuTW","nctuTW_GD","NeuroGPSTree",             
                   "NeuronChaser","NeuroStalker","neutu_autotrace","neutube","pyzh","Rayshooting",              
                   "Rivulet","Rollerball","simple","smartTracing","snake","tubularity_model_S",       
@@ -648,16 +649,16 @@ shinyServer(function(input, output, session) {
       updateCheckboxGroupInput(
         session,
         "variablealg",
-        choices=c("Advantra","Annotated","app1","app2","axis_analyzer","Consensus",                
-                  "Cwlab_ver1","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
-                  "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost",                 
+        choices=c("Advantra","Annotated","app1","app2","app2new1","app2new2","app2new3","axis_analyzer","Consensus",                
+                  "Cwlab_ver1","ENT","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
+                  "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost","LCMboost_3",                 
                   "meanshift","MOST","MST_Tracing","nctuTW","nctuTW_GD","NeuroGPSTree",             
                   "NeuronChaser","NeuroStalker","neutu_autotrace","neutube","pyzh","Rayshooting",              
                   "Rivulet","Rollerball","simple","smartTracing","snake","tubularity_model_S",       
                   "XY_3D_TreMap",input$inputalg),
-        selected=c("Advantra","Annotated","app1","app2","axis_analyzer","Consensus",                
-                   "Cwlab_ver1","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
-                   "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost",                 
+        selected=c("Advantra","Annotated","app1","app2","app2new1","app2new2","app2new3","axis_analyzer","Consensus",                
+                   "Cwlab_ver1","ENT","EnsembleNeuronTracerBasic","EnsembleNeuronTracerV2n",  
+                   "EnsembleNeuronTracerV2s","fastmarching_spanningtree","LCMboost","LCMboost_3",                 
                    "meanshift","MOST","MST_Tracing","nctuTW","nctuTW_GD","NeuroGPSTree",             
                    "NeuronChaser","NeuroStalker","neutu_autotrace","neutube","pyzh","Rayshooting",              
                    "Rivulet","Rollerball","simple","smartTracing","snake","tubularity_model_S",       
