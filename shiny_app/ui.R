@@ -24,7 +24,7 @@ shinyUI(fluidPage(
   #   # Output: Tabset w/ plot, summary, and table ----
       tabsetPanel(type = "tabs",
                   tabPanel("PCA", 
-                           selectInput("variableclust",label = h5(strong("Select for cluster polygons")),"",selected="variableclust"),
+                           selectInput("variableclust",label = h5(strong("Select for cluster polygons (take into account that only the set of metric chosen will be used for the analysis)")),"",selected="variableclust"),
                            withLoader(plotlyOutput("PCA",height = "800px", width = "100%")),
                            downloadLink("downloadPlot", "Download Plot"),
                            fluidRow(splitLayout(style = "border: 1px solid silver:", cellWidths = c("40%","40%"),
@@ -35,7 +35,7 @@ shinyUI(fluidPage(
                                                 downloadLink("downloadPlotdim2", "Download Plot")))
                            ),
                   tabPanel("t-SNE",  
-                           selectInput("variableclust2",label = h5(strong("Select for cluster polygons")),"",selected="variableclust2"),
+                           selectInput("variableclust2",label = h5(strong("Select for cluster polygons (take into account that only the set of metric chosen will be used for the analysis)")),"",selected="variableclust2"),
                            withLoader(plotlyOutput("tSNE",height = "800px", width = "100%"),type="text",
                                                 loader = list(marquee("Please be patient, this can take up to 60 seconds"))),
                            downloadLink("downloadPlot2", "Download Plot")
@@ -44,6 +44,7 @@ shinyUI(fluidPage(
                            withLoader(
                    plotlyOutput("Clustering",height = "1200px", width = "100%")),
                    downloadLink("downloadPlot3", "Download Plot"),
+                   fluidRow(selectInput("algclust",'Choose an algorithm:',"",selected="algclust")),
                    fluidRow(splitLayout(style = "border: 1px solid silver:", cellWidths = c("40%","40%"),
                                         plotOutput("DendClust",height = "2400px"),
                                         plotOutput("DendIm",height = "2400px"))),
@@ -65,6 +66,7 @@ shinyUI(fluidPage(
                    fluidRow(splitLayout(style = "border: 1px solid silver:", cellWidths = c("40%","40%"),
                                         plotOutput("ImPlot",height = "600px")))),
                  tabPanel("Sholl",
+                          h5(strong("This analysis is only available for cross-species comparison of Gold standard reconstructions at the moment.")),
                           plotlyOutput("ShollPlot",height="500px"),
                           fluidRow(downloadLink("downloadPlot8", "Download Plot")),
                           fluidRow(splitLayout(style = "border: 1px solid silver:", cellWidths = c("40%","40%"),
@@ -76,7 +78,7 @@ shinyUI(fluidPage(
                  
                           # fluidRow(plotOutput("VolPlot",height = "400px"))),
                  tabPanel("Persistent Homology",
-                          h5(strong("Click on any data point in the heatmap to see Persistent Homology plots for pairs of neurons.")),
+                          h5(strong("Click on any data point in the heatmap to see Persistent Homology plots for pairs of neurons. This analysis is only available for Gold standard reconstructions at the moment.")),
                           #splitLayout(style = "border: 1px solid silver:", cellWidths = c("40%","40%"),
                           fluidRow(
                                        selectInput("xlabtmdmap",label = h5(strong("Select for x axis labels")),"",selected="xlabtmdmap"),
