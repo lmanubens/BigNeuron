@@ -9,7 +9,8 @@ load('shiny_app/clustdat_dend.Rdata')
 cdat_dend <- cdat
 load('shiny_app/clustdat_iq_3D.Rdata')
 cdat_iq <- cdat
-load('shiny_app/clustdat_both_3D.all.Rdata')
+# load('shiny_app/clustdat_both_3D.all.Rdata')
+load('shiny_app/clustdat_both_3D.bak.Rdata')
 cdat_both <- cdat
 
 vardf <- nearZeroVar(cdat_both, saveMetrics = T)
@@ -30,9 +31,9 @@ plot(mclustBIC(scale(cdat_iq),G=1:15)) + abline(v = 7,col="lightblue", lwd=2, lt
 plot(mclustBIC(scale(cdat_both),G=1:20,modelNames=c("EII", "VII", "EEE", "VVV"),prior=priorControl())) + abline(v = 14,col="lightblue", lwd=2, lty=2)
 plot(mclustBIC(cdat_both,G=1:20,modelNames=c("EII", "VII", "EEE", "VVV"))) + abline(v = 14,col="lightblue", lwd=2, lty=2)
 plot(mclustBIC(scale(cdat_both),G=2:20)) + abline(v = 14,col="lightblue", lwd=2, lty=2)
-plot(mclustBIC(scale(cdat_both),G=1:20,modelNames=c("EII", "VII", "EEE", "VVV"))) + abline(v = 14,col="lightblue", lwd=2, lty=2)
+plot(mclustBIC(scale(cdat_both),G=1:20,modelNames=c("EII", "VII", "EEE", "EEV"))) + abline(v = 16,col="lightblue", lwd=2, lty=2)
 summary(mclustBIC(scale(cdat_both),G=2:20))
-summary(mclustBIC(scale(cdat_both),G=2:20,modelNames=c("EII", "VII", "EEE", "VVV")))
+summary(mclustBIC(scale(cdat_both),G=2:20,modelNames=c("EII", "VII", "EEE", "EEV")))
 # plot(mclustBIC(scale(cdat_dend)))
 # plot(mclustBIC(scale(cdat_iq)))
 # plot(mclustBIC(scale(cdat_both)))
@@ -90,6 +91,7 @@ plot(hcTree, what = "merge", labels = TRUE, hang = 0.1)
 plot(hcTree, what = "merge", labels = TRUE, hang = -1)
 plot(hcTree, what = "merge", labels = TRUE, maxG = 9)
 plot(hcTree, what = "merge", labels = TRUE, maxG = 16)
+# plot(hcTree, what = "loglik", labels = TRUE, maxG = 16)
 
 # dend <- colour_clusters(hcTree, k=9, groupLabels=T)
 

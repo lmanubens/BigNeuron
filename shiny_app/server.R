@@ -357,8 +357,8 @@ shinyServer(function(input, output, session) {
                 "SNR_otsu_swc","CNR_otsu_swc"),
       # choices=names(upDataorig()[29:43]),
       # selected=names(upDataorig())[-c(1,3,4,11,12,21,23,27,33,34,36)]
-      selected=c("FocusScore","MedianIntensity","PercentMinimal","StdIntensity","CNR_otsu",
-                 "FocusScore_swc","MedianIntensity_swc","PercentMinimal_swc","StdIntensity_swc","CNR_otsu_swc")
+      selected=c("FocusScore","MedianIntensity","PercentMaximal","PercentMinimal","StdIntensity","CNR_otsu",
+                 "FocusScore_swc","MedianIntensity_swc","PercentMaximal_swc","PercentMinimal_swc","StdIntensity_swc","CNR_otsu_swc")
       # selected=names(upDataorig())[c(29,30,35,38,40)]
       #selected=names(upDataorig())[c(2,5,9,14,16,20,22,28,29,30,35,38,40)]
     )
@@ -878,7 +878,7 @@ shinyServer(function(input, output, session) {
   ###################
   # output$PCA <- renderPlotly({
   plotPCA <- reactive({
-    set.seed(100)
+    # set.seed(100)
     pcadata <- upData()
     print("PCA preproc")
     # print(length(pcadata))
@@ -984,7 +984,7 @@ shinyServer(function(input, output, session) {
       # memb <- abs(memb-nclust-1)
       # print(memb)
       ###############
-      BIC <- Mclust(scale(cdat),G=2:15)
+      BIC <- Mclust(scale(cdat),G=2:20,modelNames=c("EII", "VII", "EEE", "EEV"))
       # save(cdat,file="clustdat.Rdata")
       print(BIC$classification)
       print(BIC$modelName)
@@ -1008,7 +1008,7 @@ shinyServer(function(input, output, session) {
       else{
         idsclusts <- data.frame(ids=groupsdf$ids,clusters_both=memb,label=paste0(groupsdf$ids,'_',groupsdf$algorithm))
         # save(idsclusts,file="clusters_both.Rdata")
-        # save(cdat,file="clustdat_both_3D.Rdata")
+        # save(cdat,file="clustdat_both_3D.all.Rdata")
       }
       # print(idsclusts)
 
@@ -1061,7 +1061,7 @@ shinyServer(function(input, output, session) {
         # ylim(-5,5) +
         # geom_polygon
         theme_classic() +
-        scale_color_manual(name="Dataset", values=c('#fc8d62','#fc8d62','#76e2be','#3eb58d','#66c2a5','#54a389','#a6d854','#b3b3b3','#ffd92f','#e5c494','#e09e46','#c19963','#e78ac3','#a6bde8','#8da0cb','#6691dd')) +  
+        scale_color_manual(name="Dataset", values=c('#fc8d62','#48cfa2','#76e2be','#3eb58d','#66c2a5','#54a389','#a6d854','#b3b3b3','#ffd92f','#e5c494','#e09e46','#c19963','#e78ac3','#a6bde8','#8da0cb','#6691dd')) +  
         geom_point(aes(colour=colsv),size=1.7) +
         # theme_classic(base_family = 'Arial') +
         theme(aspect.ratio=1) #+
@@ -1278,7 +1278,7 @@ shinyServer(function(input, output, session) {
       print(rownames(cdat))
       ###############
       print("Starting t-SNE mclust")
-      BIC <- Mclust(scale(cdat),G=2:15)
+      BIC <- Mclust(scale(cdat),G=2:20,modelNames=c("EII", "VII", "EEE", "EEV"))
       # save(cdat,file="clustdat.Rdata")
       print(BIC$classification)
       print(BIC$modelName)
@@ -1629,7 +1629,7 @@ shinyServer(function(input, output, session) {
     # USArrests[memb == k,]
     # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
     
-    BIC <- Mclust(scale(cdat), G=2:15)#, modelNames = c("VII", "EEI", "EVI", "VEI", "VVI", "EEE", "VEE", "EVE", "VVE", "EEV", "VEV", "EVV", "VVV"))
+    BIC <- Mclust(scale(cdat), G=2:20, modelNames=c("EII", "VII", "EEE", "EEV"))#, modelNames = c("VII", "EEI", "EVI", "VEI", "VVI", "EEE", "VEE", "EVE", "VVE", "EEV", "VEV", "EVV", "VVV"))
     # save(cdat,file="clustdat.Rdata")
     print(BIC$classification)
     print(BIC$modelName)
@@ -1721,7 +1721,7 @@ shinyServer(function(input, output, session) {
     # dend <- colour_clusters(hclust, k=7, groupLabels=T)
     # labels(dend)=grps[grps$algorithm=="Annotated",]$dataset
     
-    BIC <- Mclust(scale(cdat), G=2:15)
+    BIC <- Mclust(scale(cdat), G=2:20, modelNames=c("EII", "VII", "EEE", "EEV"))
     # save(cdat,file="clustdat.Rdata")
     print(BIC$classification)
     print(BIC$modelName)
@@ -1794,6 +1794,7 @@ shinyServer(function(input, output, session) {
     # cdat <- cdat[grps$algorithm=='Annotated',]
     # grps <- grps[grps$algorithm=='Annotated',]
     cdat <- cdat[,apply(cdat, 2, var, na.rm=TRUE) != 0]
+    
     # cdat <- unique(cdat)
     # grps$ids <-  sapply(strsplit(as.character(grps$paths),'/'),"[", 8)
     # rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
@@ -1810,7 +1811,16 @@ shinyServer(function(input, output, session) {
     # values$memb_both <- abs(memb-7-1)
     
     
-    BIC <- Mclust(scale(cdat), G=2:15)#, modelNames = c("VII", "EEI", "EVI", "VEI", "VVI", "EEE", "VEE", "EVE", "VVE", "EEV", "VEV", "EVV", "VVV"))
+    BIC <- Mclust(scale(cdat), G=2:20, modelNames=c("EII", "VII", "EEE", "EEV"))#, modelNames = c("VII", "EEI", "EVI", "VEI", "VVI", "EEE", "VEE", "EVE", "VVE", "EEV", "VEV", "EVV", "VVV"))
+    if(unique(grps$algorithm)=="Annotated" & c(input$variablemorph,input$variableiq) == c("num_stems","num_of_tips","average_diameter","total_length","max_path_distance",
+                                                                                          "max_branch_order","bifurcation_angle_remote","FocusScore","MADIntensity","MaxIntensity",
+                                                                                          "MeanIntensity","MedianIntensity","MinIntensity","PercentMaximal",
+                                                                                          "PercentMinimal","StdIntensity","ThresholdOtsu","CNR_otsu",
+                                                                                          "xy_pixel_size","z_pixel_size")){
+      # vardf <- nearZeroVar(cdat, saveMetrics = T)
+      # cdat <- cdat[vardf$percentUnique>90]
+      BIC <- Mclust(scale(cdat), G=16:16, modelNames=c("EEE"))#, modelNames = c("VII", "EEI", "EVI", "VEI", "VVI", "EEE", "VEE", "EVE", "VVE", "EEV", "VEV", "EVV", "VVV"))
+    }
     # save(cdat,file="clustdat.Rdata")
     print(BIC$classification)
     print(BIC$modelName)
@@ -1818,7 +1828,7 @@ shinyServer(function(input, output, session) {
     
     rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
     # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
-    hclust <- hclust(dist(scale(cdat)),method="ward.D2")
+    hclust <- hclust(dist(scale(cdat)),method="average")
     dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
     memb <- cutree(dend, k = max(BIC$classification))
     
@@ -2413,8 +2423,8 @@ shinyServer(function(input, output, session) {
     
     pdata <- cbind(upData(),grps)
     # pdata <- arrange(pdata,pdata[,which(names(pdata)=='average of bi-directional entire-structure-averages')])
-    # pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
-    pdata$dists <- pdata[,which(names(pdata)=='percent.of.different.structure')]
+    pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
+    # pdata$dists <- pdata[,which(names(pdata)=='percent.of.different.structure')]
     # pdata$dists <- pdata[,which(names(pdata)=='entire.structure.average..from.neuron.1.to.2.')]
     
     
@@ -2436,7 +2446,7 @@ shinyServer(function(input, output, session) {
         pdata <- pdata[pdata$ids %in% idsclusts$ids[idsclusts$clusters_IQ %in% as.numeric(input$distclust)],]
       }
       else{
-        load("clusters_both.Rdata")
+        load("clusters_both.bak.Rdata")
         pdata <- pdata[pdata$ids %in% idsclusts$ids[idsclusts$clusters_both %in% as.numeric(input$distclust)],]
       }
     }
@@ -2470,8 +2480,8 @@ shinyServer(function(input, output, session) {
                 fill="steelblue",
                 # order = as.character(unique(arrange(pdata,pdata$dists)$algorithm)),
                 # order = reorder(algorithm,dists),
-                # ylab= 'average of bi-directional entire-structure-average distances',
-                ylab= 'percent of different structure',
+                ylab= 'average of bi-directional entire-structure-average distances',
+                # ylab= 'percent of different structure',
                 # ylab= 'entire structure average from neuron 1 to 2',
                 add = "mean_se") +
         theme(text = element_text(size=8),
@@ -2498,4 +2508,4 @@ shinyServer(function(input, output, session) {
 })
 
 # library(rsconnect)
-# rsconnect::deployApp('./',appName = 'BigNeuron_Gold163')
+# rsconnect::deployApp('./',appName = 'BigNeuron_Gold166')

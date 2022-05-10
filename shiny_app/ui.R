@@ -5,7 +5,7 @@ library(rgl)
 options(shiny.maxRequestSize = 30*1024^2)
 
 shinyUI(fluidPage(
-  titlePanel("Gold163 analysis"),
+  titlePanel("Gold166 analysis"),
   fluidRow(
     column(2,     
       selectInput("variablegroups",label = h5(strong("Select for coloring")),"",selected="variablegroups"),
@@ -105,7 +105,7 @@ shinyUI(fluidPage(
                           selectInput("recgroup2",'Choose a group of auto reconstructions:',"",selected="recgroup2",selectize = F,size=2),
                           selectInput("variableclust3",'Choose a set:',"",selected="variableclust3"),
                           selectInput("distclust",'Choose a cluster:',"",selected="distclust",selectize = F,size=3),
-                          plotlyOutput("Distances",height = "600px", width = "100%"),
+                          withLoader(plotlyOutput("Distances",height = "600px", width = "100%")),
                           downloadLink("downloadPlot6", "Download Plot"))
       )
     ),
