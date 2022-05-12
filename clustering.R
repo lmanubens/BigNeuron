@@ -3,24 +3,47 @@ library(ggpubr)
 library(mclust)
 library(factoextra)
 library(cluster)
+library(caret)
 
 load('shiny_app/clustdat_dend.Rdata')
 cdat_dend <- cdat
-load('shiny_app/clustdat_iq.Rdata')
+load('shiny_app/clustdat_iq_3D.Rdata')
 cdat_iq <- cdat
-load('shiny_app/clustdat_both.Rdata')
+# load('shiny_app/clustdat_both_3D.all.Rdata')
+load('shiny_app/clustdat_both_3D.bak.Rdata')
 cdat_both <- cdat
 
+vardf <- nearZeroVar(cdat_both, saveMetrics = T)
+cdat_both <- cdat_both[vardf$percentUnique>90]
+
+###############
+BIC <- Mclust(scale(cdat),G=1:20)
+BIC <- Mclust(scale(cdat), modelNames=c("EII", "VII", "EEE", "VVV"), G=1:15)
+# save(cdat,file="clustdat.Rdata")
+print(BIC$classification)
+print(BIC$modelName)
+memb <- BIC$classification
+plot(mclustBIC(scale(cdat),modelNames=c("EII", "VII", "EEE", "VVV")))
+##############
+
 plot(mclustBIC(scale(cdat_dend),G=1:15))
-plot(mclustBIC(scale(cdat_iq),G=1:15))
-plot(mclustBIC(scale(cdat_both),G=1:15)) + abline(v = 9,col="lightblue", lwd=2, lty=2)
-summary(mclustBIC(scale(cdat_both),G=1:15))
+plot(mclustBIC(scale(cdat_iq),G=1:15)) + abline(v = 7,col="lightblue", lwd=2, lty=2)
+plot(mclustBIC(scale(cdat_both),G=1:20,modelNames=c("EII", "VII", "EEE", "VVV"),prior=priorControl())) + abline(v = 14,col="lightblue", lwd=2, lty=2)
+plot(mclustBIC(cdat_both,G=1:20,modelNames=c("EII", "VII", "EEE", "VVV"))) + abline(v = 14,col="lightblue", lwd=2, lty=2)
+plot(mclustBIC(scale(cdat_both),G=2:20)) + abline(v = 14,col="lightblue", lwd=2, lty=2)
+plot(mclustBIC(scale(cdat_both),G=1:20,modelNames=c("EII", "VII", "EEE", "EEV"))) + abline(v = 16,col="lightblue", lwd=2, lty=2)
+summary(mclustBIC(scale(cdat_both),G=2:20))
+summary(mclustBIC(scale(cdat_both),G=2:20,modelNames=c("EII", "VII", "EEE", "EEV")))
 # plot(mclustBIC(scale(cdat_dend)))
 # plot(mclustBIC(scale(cdat_iq)))
 # plot(mclustBIC(scale(cdat_both)))
 
+hcTree <- hc(modelName = "VEV", data = cdat_iq)
+plot(hcTree, what = "merge", labels = TRUE, maxG = 7)
+
 hcTree <- hc(modelName = "EEE", data = cdat_both)
-plot(hcTree, what = "merge", labels = TRUE, maxG = 9)
+hcTree <- hc(data = cdat_both)
+plot(hcTree, what = "merge", labels = TRUE, maxG = 14)
 
 fviz_nbclust(scale(cdat_dend), kmeans, method = "gap_stat",k.max=15) +
   labs(subtitle = "Silhouette method")
@@ -32,8 +55,8 @@ fviz_nbclust(scale(cdat_both), kmeans, method = "gap_stat",k.max=15) +
 #   labs(subtitle = "Silhouette method")
 # fviz_nbclust(scale(cdat_iq), pam, method = "silhouette") +
 #   labs(subtitle = "Silhouette method")
-# fviz_nbclust(scale(cdat_both), pam, method = "silhouette") +
-#   labs(subtitle = "Silhouette method")
+fviz_nbclust(scale(cdat_both), pam, method = "silhouette",k.max=20) +
+  labs(subtitle = "Silhouette method")
 
 
 
@@ -67,6 +90,8 @@ plot(hcTree, what = "merge", labels = TRUE)
 plot(hcTree, what = "merge", labels = TRUE, hang = 0.1)
 plot(hcTree, what = "merge", labels = TRUE, hang = -1)
 plot(hcTree, what = "merge", labels = TRUE, maxG = 9)
+plot(hcTree, what = "merge", labels = TRUE, maxG = 16)
+# plot(hcTree, what = "loglik", labels = TRUE, maxG = 16)
 
 # dend <- colour_clusters(hcTree, k=9, groupLabels=T)
 

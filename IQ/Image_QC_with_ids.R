@@ -3,13 +3,16 @@ library(pcaMethods)
 
 df <- read.csv('./ImageQ_projImage.csv')
 data <- df[,c(13:28,39)]
+data <- df[,c(13:28)]
 data$ImageQuality_Scaling_IQ <- NULL
+data$ImageQuality_Scaling_DNA <- NULL
+data$ImageQuality_Scaling_DNA <- NULL
 data <- remove_missing(data)
 
 df$ids <- sapply(strsplit(as.character(df$FileName_DNA),"[.]"), "[", 1)
-save(df,file='df_iq.Rdata')
+# save(df,file='df_iq.Rdata')
 dfiq <- df
-save(dfiq,file='../../../Both_GS_and_auto/df_iq.Rdata')
+# save(dfiq,file='../../../Both_GS_and_auto/df_iq.Rdata')
 
 pca <- prcomp(data,
               center = TRUE,
@@ -22,7 +25,7 @@ summary(pca)
 g <- ggbiplot(pca, obs.scale = 1, var.scale = 1, 
               labels.size = 15,
               varname.size = 4,
-              groups = groups, 
+              # groups = groups, 
               ellipse = TRUE, 
               #var.axes = FALSE,
               circle = FALSE)

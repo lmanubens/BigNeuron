@@ -10,5 +10,5 @@ do
     do
         vaa3d -x missing_branch_detection -f missing_branch_detection -i ../BigNeurongit/Data/gold166_wids_vols/$D/$D.v3dpbd $I2 -o $I2.missing_branches
     done
-    vaa3d -x missing_branch_detection -f missing_branch_detection -i ../BigNeurongit/Data/gold166_wids_vols/$D/$D.v3dpbd $I1 -o $I1.missing_branches
+    # vaa3d -x missing_branch_detection -f missing_branch_detection -i ../BigNeurongit/Data/gold166_wids_vols/$D/$D.v3dpbd $I1 -o $I1.missing_branches
 done
