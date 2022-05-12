@@ -291,27 +291,9 @@ shinyServer(function(input, output, session) {
       SWCpaths <- inFile$datapath[grepl(".swc",inFile$datapath)]
       SWCnames <- inFile$name[grepl(".swc",inFile$datapath)]
 
-<<<<<<< HEAD
-      #zx linus changed
-      SWCpaths <- inFile$datapath[grepl(".swc",inFile$datapath)]
-      SWCnames <- inFile$name[grepl(".swc",inFile$datapath)]
-
-      #zx change inFile$datapath to SWCpaths
-      for(i in 1:length(SWCpaths)){
-        # Get dataset, and define group, algorithm and paths
-        # idataset <- groupsdf[which(ids==strsplit(inFile$name[i],"[.]")[[1]][1])[1],1]
-        # igroup <- input$inputalg
-        # ialgorithm <- input$inputalg
-        # ipaths <- paste0("/x/x/x/x/x/x/",strsplit(inFile$name[i],"[.]")[[1]][1])
-        # iids <- strsplit(inFile$name[i],"[.]")[[1]][1]
-        
-        #zx this sentence make igroupsdf to same column numbers with groupsdf 
-        igroupsdf <- groupsdf[1,]
-=======
       for(i in 1:length(SWCpaths)){
         igroupsdf <- groupsdf[1,]
         # Get dataset, and define group, algorithm and paths
->>>>>>> origin/main
         igroupsdf$dataset <- groupsdf[which(ids==strsplit(SWCnames[i],"[.]")[[1]][1])[1],1]
         igroupsdf$group <- input$inputalg
         igroupsdf$algorithm <- input$inputalg
@@ -319,14 +301,9 @@ shinyServer(function(input, output, session) {
         igroupsdf$ids <- strsplit(SWCnames[i],"[.]")[[1]][1]
 
         # Merge with groupsdf data
-<<<<<<< HEAD
-        #igroupsdf <- data.frame(dataset=idataset,group=igroup,algorithm=ialgorithm,paths=ipaths,ids=iids)
-        
-=======
         # igroupsdf <- data.frame(dataset=idataset,group=igroup,algorithm=ialgorithm,paths=ipaths,ids=iids)
         # print(names(groupsdf))
         # print(names(igroupsdf))
->>>>>>> origin/main
         groupsdf <- rbind(groupsdf,igroupsdf)
       }
     }
