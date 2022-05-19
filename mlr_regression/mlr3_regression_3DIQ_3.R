@@ -415,6 +415,13 @@ pddf4 <- data.frame(pcdiff=preddf$pctdiffstr_pred_worse, set = "Predicted worse"
 
 pddfplot <- rbind(pddf,pddf2,pddf3,pddf4) 
 
+pairwise.wilcox.test(pddfplot$pcdiff, pddfplot$set)
+wilcox.test(pddfplot$pcdiff[pddfplot$set=="All algorithms"],
+            pddfplot$pcdiff[pddfplot$set=="True best"], alternative = "two.sided")
+library(rstatix)
+wilcox_test(pddfplot, pcdiff ~ set)
+wilcox_effsize(pddfplot, pcdiff ~ set)
+
 my_comparisons <- list( c(2, 3), c(1, 2), c(1, 3), c(3,4))
 p <- ggviolin(pddfplot, x = "set", y = "pcdiff", fill = "set",
          # palette = c("#00AFBB", "#E7B800", "#FC4E07"),

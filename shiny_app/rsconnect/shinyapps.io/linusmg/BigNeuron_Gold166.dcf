@@ -5,7 +5,7 @@ account: linusmg
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1887944
-bundleId: 5889408
+bundleId: 5889561
 url: https://linusmg.shinyapps.io/BigNeuron_Gold166/
-when: 1652149687.52568
-lastSyncTime: 1652149687.52571
+when: 1652154997.76121
+lastSyncTime: 1652154997.76124

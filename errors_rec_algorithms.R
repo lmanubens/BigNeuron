@@ -8,16 +8,29 @@ load('shiny_app/subsetdata.Rdata')
 groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "app2"
 groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
 groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "none"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "none"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "none"
+# groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="Advantra_updated"] <- "Advantra"
+# groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="neutube_updated"] <- "neutube"
+# groupsdf$algorithm[groupsdf$algorithm=="pyzh"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="pyzh_updated"] <- "pyzh"
 groupsdf$algorithm[groupsdf$algorithm=="LCMboost_updated"] <- "LCMboost"
-groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+# groupsdf$algorithm[groupsdf$algorithm=="LCMboost"] <- "none"
+# groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+# groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "none"
+# groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree_updated"] <- "fastmarching_spanningtree"
+# groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer_updated"] <- "axis_analyzer"
+# groupsdf$algorithm[groupsdf$algorithm=="NeuronChaser"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="NeuronChaser_updated"] <- "NeuronChaser"
 groupsdf$algorithm[groupsdf$algorithm=="meanshift_updated"] <- "meanshift"
+# groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree_updated"] <- "NeuroGPSTree"
+# groupsdf$algorithm[groupsdf$algorithm=="EnsembleNeuronTracerBasic"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "EnsembleNeuronTracerBasic"
 
 # total_length <- my_data$total_length[groupsdf$group=="Gold_Standard"]
@@ -119,10 +132,15 @@ p + stat_compare_means(method = "kruskal.test")
 source("compare_means_LMG.R")
 compare_means_LMG(error ~ algorithm,df,group.by="metric",method = "kruskal.test")
 compare_means(error ~ algorithm,df,group.by="metric",method = "kruskal.test")
+kruskal.test(error ~ algorithm,df[df$metric=="max_branch_order",])
 
 library(plotly)
 ggplotly(p)
 
+library(dplyr)
+df %>%
+  group_by(algorithm) %>%
+  summarise(nrows = length(algorithm)/8)
 
 p2 <- ggboxplot(df, x="algorithm",y="error",
                 fill="algorithm",palette="Set2") +
