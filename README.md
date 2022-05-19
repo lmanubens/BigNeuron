@@ -2,7 +2,7 @@
 
 
 <!--[![biorXiv shield](https://img.shields.io/badge/arXiv-1709.01233-red.svg?style=flat)](https://www.biorxiv.org/content/10.1101/2022.05.10.491406v1) -->
-<!--[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1246979.svg)](https://doi.org/10.5281/zenodo.1246979) -->
+<!--[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1246979.svg)]() -->
 
 
 ## Contents
