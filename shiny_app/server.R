@@ -21,6 +21,7 @@ library(rmarkdown)
 library(rgl)
 library(moments)
 library(mclust)
+library(RColorBrewer)
 # webshot::install_phantomjs()
 
 # library(magick)
@@ -1085,8 +1086,8 @@ shinyServer(function(input, output, session) {
           # ylim(-5,5) +
           # geom_polygon
           theme_classic() +
-          scale_color_brewer(palette="Set2") +  
           geom_point(aes(colour=colsv),size=1.7) +
+          scale_color_manual(values=colorRampPalette(brewer.pal(8,"Set2"))(length(unique(colsv)))) +  
           # theme_classic(base_family = 'Arial') +
           theme(aspect.ratio=1)
       }
