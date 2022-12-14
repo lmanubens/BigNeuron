@@ -1,8 +1,9 @@
 options("repos" = c("CRAN" = "https://cran.rstudio.com",
                     "rforge" = "http://R-Forge.R-project.org"))
 library(shiny)
-library(ggbiplot)
-# if(!require("ggbiplot")) devtools::install_github("vqv/ggbiplot")
+# library(ggbiplot)
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS="true")
+if(!require("ggbiplot")) devtools::install_github("vqv/ggbiplot")
 library(plotly)
 library(Rtsne)
 library(corrplot)
@@ -1036,12 +1037,13 @@ shinyServer(function(input, output, session) {
                ellipse = T,
                alpha=0.3,
                groups=colsv) +
-        theme_classic(base_family = 'Arial') +
+        # theme_classic(base_family = 'Arial') +
         theme(aspect.ratio=1) +
         # scale_fill_brewer(palette = 'Set1') +
         # scale_colour_brewer(palette = 'Set1') +
         # new_scale("fill") +
         # new_scale("color") +
+        theme_classic() +
         geom_polygon(data=hulls,aes(x=PCA1, y=PCA2, fill = clusters, linetype=clusters), alpha = 0.2) +
         # scale_fill_brewer(palette = 'Set2') +
         scale_color_brewer(palette = 'Set3')
