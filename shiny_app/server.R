@@ -237,6 +237,7 @@ shinyServer(function(input, output, session) {
     # groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "EnsembleNeuronTracerBasic"
     groupsdf$algorithm[groupsdf$algorithm=="ENT"] <- "none"
     groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "ENT"
+    groupsdf$algorithm[grep("21_th_200",groupsdf$paths)] <- "none"
     
     groupsdf$dataset <- substring(groupsdf$dataset,12)
     
@@ -508,6 +509,24 @@ shinyServer(function(input, output, session) {
       "distclust",
       choices=1:16,#length(input$variabledat),
       selected=1#length(input$variabledat)
+    )
+  })
+  
+  observe({
+    updateSelectInput(
+      session,
+      "distmetric",
+      choices=c(input$variabledist,"aggregated.distance"),
+        # c("entire.structure.average..from.neuron.1.to.2.",
+        #         "entire.structure.average..from.neuron.2.to.1.",      
+        #         "average.of.bi.directional.entire.structure.averages",
+        #         "different.structure.average",                        
+        #         "percent.of.different.structure..from.neuron.1.to.2.",
+        #         "percent.of.different.structure..from.neuron.2.to.1.",
+        #         "percent.of.different.structure",
+        #         "aggregated.distance"),#length(input$variabledat),
+      selected=input$variabledist[1]
+        #'average.of.bi.directional.entire.structure.averages'#length(input$variabledat)
     )
   })
   
@@ -2423,16 +2442,39 @@ shinyServer(function(input, output, session) {
      
     print(length(upData()[,1]))
     print(length(grps[,1]))
+    print(input$variablealg)
     
     pdata <- cbind(upData(),grps)
     # pdata <- arrange(pdata,pdata[,which(names(pdata)=='average of bi-directional entire-structure-averages')])
-    pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
+    # pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
+    if(input$distmetric!="aggregated.distance"){
+      pdata$dists <- pdata[,which(names(pdata)==input$distmetric)]
+    }
+    else{
+      pdataagg <- pdata[,which(names(pdata) %in% c("entire.structure.average..from.neuron.1.to.2.",
+                                                   "entire.structure.average..from.neuron.2.to.1.",      
+                                                   "average.of.bi.directional.entire.structure.averages",
+                                                   "different.structure.average",                        
+                                                   "percent.of.different.structure..from.neuron.1.to.2.",
+                                                   "percent.of.different.structure..from.neuron.2.to.1.",
+                                                   "percent.of.different.structure"))]
+      
+      pdataagg <-  sapply(pdataagg, function(x) (x - min(x, na.rm = T)) / (max(x, na.rm = T) - min(x, na.rm=T)))
+      pdata$dists <- rowMeans(pdataagg)
+    }
     # pdata$dists <- pdata[,which(names(pdata)=='percent.of.different.structure')]
     # pdata$dists <- pdata[,which(names(pdata)=='entire.structure.average..from.neuron.1.to.2.')]
     
     
     # pdata <- subset(pdata,pdata$algorithm!='Annotated')
-    pdata <- subset(pdata,pdata$algorithm=='Consensus' | pdata$algorithm==input$inputalg | pdata$group==input$recgroup2)
+    # pdata <- subset(pdata,pdata$algorithm=='Consensus' | pdata$algorithm==input$inputalg | pdata$group==input$recgroup2)
+    # pdata <- subset(pdata,pdata$algorithm=='Consensus' | pdata$algorithm==input$inputalg | pdata$group=="Auto")
+    if(input$variablealg=="Annotated" & length(input$variablealg)==1){
+      pdata <- subset(pdata,pdata$algorithm=='Annotated')
+    }
+    else{
+      pdata <- subset(pdata,pdata$algorithm=='Consensus' | pdata$algorithm==input$inputalg | pdata$group=="Auto")
+    }
     # print(pdata)
     
     print("nonclust done")
@@ -2483,7 +2525,8 @@ shinyServer(function(input, output, session) {
                 fill="steelblue",
                 # order = as.character(unique(arrange(pdata,pdata$dists)$algorithm)),
                 # order = reorder(algorithm,dists),
-                ylab= 'average of bi-directional entire-structure-average distances',
+                # ylab= 'average of bi-directional entire-structure-average distances',
+                ylab= gsub("."," ",input$distmetric, fixed=T),
                 # ylab= 'percent of different structure',
                 # ylab= 'entire structure average from neuron 1 to 2',
                 add = "mean_se") +

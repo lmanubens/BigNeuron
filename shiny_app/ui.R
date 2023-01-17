@@ -102,12 +102,12 @@ shinyUI(fluidPage(
                                                rglwidgetOutput("TreePlot2",height = "400px", width = "100%"))),
                           fluidRow(tableOutput("TreesMetadata"))),
                  tabPanel("Distances",
-                          h5(strong("Please, note that algorithms other than 'Annotated' should be selected in the checkbox 'Choose algorithm(s)' at the bottom of the page for plotting distances to Gold standards.")),
-                          h5(strong("Otherwise an error message will appear.")),
+                          h5(strong("Please, note that algorithms other than 'Annotated' should be selected in the checkbox 'Choose algorithm(s)' at the bottom of the plot for plotting distances to Gold standards.")),
                           hr(),
-                          selectInput("recgroup2",'Choose a group of auto reconstructions:',"",selected="recgroup2",selectize = F,size=2),
+                          # selectInput("recgroup2",'Choose a group of auto reconstructions:',"",selected="recgroup2",selectize = F,size=2),
                           selectInput("variableclust3",'Choose a set:',"",selected="variableclust3"),
                           selectInput("distclust",'Choose a cluster:',"",selected="distclust",selectize = F,size=3),
+                          selectInput("distmetric",'Choose a distance metric:',"",selected="distmetric"),
                           withLoader(plotlyOutput("Distances",height = "600px", width = "100%")),
                           downloadLink("downloadPlot6", "Download Plot"))
       )
