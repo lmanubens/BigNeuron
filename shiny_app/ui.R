@@ -108,7 +108,8 @@ shinyUI(fluidPage(
                           selectInput("variableclust3",'Choose a set:',"",selected="variableclust3"),
                           selectInput("distclust",'Choose a cluster:',"",selected="distclust",selectize = F,size=3),
                           selectInput("distmetric",'Choose a distance metric:',"",selected="distmetric"),
-                          withLoader(plotlyOutput("Distances",height = "600px", width = "100%")),
+                          # withLoader(plotlyOutput("Distances",height = "600px", width = "100%")),
+                          withLoader(plotOutput("Distances",height = "600px", width = "100%")),
                           downloadLink("downloadPlot6", "Download Plot"))
       )
     ),

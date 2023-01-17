@@ -2445,6 +2445,9 @@ shinyServer(function(input, output, session) {
     print(input$variablealg)
     
     pdata <- cbind(upData(),grps)
+    print(nrow(pdata))
+    pdata <- pdata[!duplicated(pdata),]
+    print(nrow(pdata))
     # pdata <- arrange(pdata,pdata[,which(names(pdata)=='average of bi-directional entire-structure-averages')])
     # pdata$dists <- pdata[,which(names(pdata)=='average.of.bi.directional.entire.structure.averages')]
     if(input$distmetric!="aggregated.distance"){
@@ -2477,6 +2480,7 @@ shinyServer(function(input, output, session) {
     }
     # print(pdata)
     
+    print(nrow(pdata))
     print("nonclust done")
     
     if(input$variableclust3=='clusters_dend' | input$variableclust3=='clusters_IQ' | input$variableclust3=='clusters_both'){
@@ -2504,7 +2508,10 @@ shinyServer(function(input, output, session) {
     # aggregate(pdata$dists, list(algorithm = pdata$algorithm), length)
     npdata$lab <- paste0(pdata$algorithm,' (N=',npdata$N,')')
     # npdata$dists <-NULL
-    pdata <-  merge(pdata,npdata,by='algorithm')
+    print(nrow(pdata))
+    print(nrow(npdata))
+    # pdata <-  merge(pdata,npdata,by='algorithm')
+    pdata$lab <-  npdata$lab
     pdata$algorithm <- pdata$lab
 
     ppdata <- aggregate(pdata$dists, list(pdata$algorithm), mean)
@@ -2517,6 +2524,8 @@ shinyServer(function(input, output, session) {
       #            width=0.8,position = position_dodge()) +
       #   coord_flip() +
       #   geom_errorbar()
+    print(pdata)
+    pdata$algorithm <- as.factor(pdata$algorithm)
     p <- ggbarplot(pdata, x = "algorithm", y = "dists",
                 order = arrange(ppdata,ppdata$x)$Group.1,
                 # order = arrange(ppdata,desc(ppdata$x))$Group.1,
@@ -2529,7 +2538,10 @@ shinyServer(function(input, output, session) {
                 ylab= gsub("."," ",input$distmetric, fixed=T),
                 # ylab= 'percent of different structure',
                 # ylab= 'entire structure average from neuron 1 to 2',
-                add = "mean_se") +
+                # add.params = list(size = 0.5, alpha=0.7, shape=1),
+                add.params = list(size = 1, fill="steelblue", alpha=0.6, shape=1),
+                add = c("mean_se", "jitter")) +
+                # add = c("mean_se", "dotplot")) +
         theme(text = element_text(size=8),
               axis.text.x = element_text(angle=45, hjust=1),
               legend.position="none")
@@ -2538,7 +2550,11 @@ shinyServer(function(input, output, session) {
     # )
   })
   
-  output$Distances <- renderPlotly({
+  # output$Distances <- renderPlotly({
+  #   print(plotDist())
+  # })
+
+  output$Distances <- renderPlot({
     print(plotDist())
   })
   
