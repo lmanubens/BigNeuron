@@ -1,3 +1,6 @@
+### BigNeuron Shiny app 
+## version 1.0.0
+
 options("repos" = c("CRAN" = "https://cran.rstudio.com",
                     "rforge" = "http://R-Forge.R-project.org"))
 library(shiny)
