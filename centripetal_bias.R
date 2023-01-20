@@ -67,6 +67,13 @@ ggplot(df2,aes(x=k,y=q)) +
   theme_pubr()
 
 
+df2 <- df2[df2$k>0,]
+my_comparisons <- list( c("Chicken", "Fruitfly"),c("Chicken", "Zebrafish"),c("Chicken", "Human-cultured") )
+ggbarplot(df2,x="Model_organism",y="k", fill="Model_organism",
+          add=c("mean","boxplot"))+
+  stat_compare_means()+
+  stat_compare_means(method="t.test",comparisons = my_comparisons)
+
 # Orientation distributions
 
 

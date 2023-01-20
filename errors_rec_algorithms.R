@@ -5,15 +5,15 @@ library(ggpubr)
 load('shiny_app/groupsdf.Rdata')
 load('shiny_app/subsetdata.Rdata')
 
-groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "app2"
-groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
-groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "none"
+groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "none"
+groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "none"
 # groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "none"
 # groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "none"
 # groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "none"
-# groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
+groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="Advantra_updated"] <- "Advantra"
-# groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
+groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="neutube_updated"] <- "neutube"
 # groupsdf$algorithm[groupsdf$algorithm=="pyzh"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="pyzh_updated"] <- "pyzh"
@@ -48,6 +48,8 @@ groupsdf <- groupsdf[groupsdf$algorithm %in% c("Annotated","Advantra","app1","ap
 
 my_data <- my_data[,names(my_data) %in% c("num_stems","overall_x_span","num_of_tips","total_length","max_path_distance",
                    "max_branch_order","average_contraction","average_fragmentation","bifurcation_angle_remote")]
+
+write.csv(cbind(groupsdf[,c(3,5)],my_data),"Fig_3A_error_pct.csv",row.names=F)
 
 mmetrics <- c("num_stems","overall_x_span","num_of_tips","total_length","max_path_distance",
               "max_branch_order","average_contraction","average_fragmentation","bifurcation_angle_remote")
@@ -132,7 +134,15 @@ p + stat_compare_means(method = "kruskal.test")
 source("compare_means_LMG.R")
 compare_means_LMG(error ~ algorithm,df,group.by="metric",method = "kruskal.test")
 compare_means(error ~ algorithm,df,group.by="metric",method = "kruskal.test")
+
+kruskal.test(error ~ algorithm,df[df$metric=="average_contraction",])
+kruskal.test(error ~ algorithm,df[df$metric=="average_fragmentation",])
+kruskal.test(error ~ algorithm,df[df$metric=="bifurcation_angle_remote",])
 kruskal.test(error ~ algorithm,df[df$metric=="max_branch_order",])
+kruskal.test(error ~ algorithm,df[df$metric=="max_path_distance",])
+kruskal.test(error ~ algorithm,df[df$metric=="num_of_tips",])
+kruskal.test(error ~ algorithm,df[df$metric=="overall_x_span",])
+kruskal.test(error ~ algorithm,df[df$metric=="total_length",])
 
 library(plotly)
 ggplotly(p)

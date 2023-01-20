@@ -36,22 +36,35 @@ load('../shiny_app/groupsdf.Rdata')
 
 data <- my_data 
 
-groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "app2"
-groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
-groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="Advantra_updated"] <- "Advantra"
+groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="neutube_updated"] <- "neutube"
+groupsdf$algorithm[groupsdf$algorithm=="pyzh"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="pyzh_updated"] <- "pyzh"
+groupsdf$algorithm[groupsdf$algorithm=="LCMboost"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="LCMboost_updated"] <- "LCMboost"
-groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+# groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree_updated"] <- "fastmarching_spanningtree"
+groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer_updated"] <- "axis_analyzer"
+groupsdf$algorithm[groupsdf$algorithm=="NeuronChaser"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="NeuronChaser_updated"] <- "NeuronChaser"
+groupsdf$algorithm[groupsdf$algorithm=="meanshift"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="meanshift_updated"] <- "meanshift"
+groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree_updated"] <- "NeuroGPSTree"
-groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "EnsembleNeuronTracerBasic"
+groupsdf$algorithm[groupsdf$algorithm=="ENT"] <- "none"
+groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "ENT"
 
 ml <- cbind(data,groupsdf)
+
+ml <- ml[ml$algorithm!="none" & ml$group!="Processed",]
+groupsdf <- groupsdf[groupsdf$algorithm!="none" & groupsdf$group!="Processed",]
 
 ml <- ml[,names(ml) %in% c(
   # "num_stems","num_of_tips","average_diameter","total_length","max_path_distance",
@@ -336,8 +349,8 @@ ml$algorithm <- NULL
 ml$ids <- NULL
 task = TaskRegr$new(id = "alg", backend = ml, target = "percent.of.different.structure")#, extra_args = list(group="ids"))
 
-# learner = mlr_learners$get("regr.svm")
-learner = mlr_learners$get("regr.ranger")
+learner = mlr_learners$get("regr.svm")
+# learner = mlr_learners$get("regr.ranger")
 learner$train(task)
 learner$train(task, row_ids = which(idsml %in% idstrain))
 idstest <-idsml[!(idsml %in% idstrain)] 
@@ -351,9 +364,9 @@ prediction$confusion
 dfplot <- data.frame(response=prediction$data$response,truth=prediction$data$truth)
 
 colarray <- idsml[prediction$data$row_ids]
-colarray[as.numeric(as.character(colarray))>60] <- 15
+colarray[as.numeric(as.character(colarray))>110] <- 15
 
-alpharray <- as.numeric(as.numeric(as.character(idsml[prediction$data$row_ids]))<60)+0.1
+alpharray <- as.numeric(as.numeric(as.character(idsml[prediction$data$row_ids]))<110)+0.1
 
 p=autoplot(prediction, color=colarray, alpha= alpharray)#, color_palette(palette="Set2"))
 p + scale_fill_brewer(palette = "Set2") +
@@ -375,7 +388,7 @@ fset <- c(rep("#1b9e77",22),rep("#d95f02",3),
           rep("#1b9e77",2),rep("#d95f02",2),
           rep("#1b9e77",2),
           "#d95f02","#1b9e77")
-autoplot(f,n=15) + theme_pubr(x.text.angle = 45)
+autoplot(f,n=1) + theme_pubr(x.text.angle = 45)
 fset <- as.factor(fset)
 autoplot(f, fill=fset) + theme_pubr(x.text.angle = 45)
 
@@ -423,9 +436,9 @@ p <- ggviolin(pddfplot, x = "set", y = "pcdiff", fill = "set",
          # palette = c("#00AFBB", "#E7B800", "#FC4E07"),
          add = c("boxplot"), add.params = list(fill = "white"))+
   scale_fill_brewer(palette = 'Set3') +
-  stat_compare_means(comparisons = my_comparisons, label = "p.signif")#+ # Add significance levels
+  stat_compare_means(comparisons = my_comparisons, label = "p.ajd")#+ # Add significance levels
 # stat_compare_means(label.y = 2)                                      # Add global the p-value 
-ggplotly(p)
+# ggplotly(p)
 p
 
 preddf$ids <- fct_reorder(as.factor(preddf$ids),preddf$pctdiffstr_truth,min)

@@ -898,6 +898,9 @@ shinyServer(function(input, output, session) {
   ###################
   ###################
   # output$PCA <- renderPlotly({
+  
+  pcadata_dl <- reactiveValues(dl_data = NULL)
+  
   plotPCA <- reactive({
     # set.seed(100)
     pcadata <- upData()
@@ -1052,6 +1055,7 @@ shinyServer(function(input, output, session) {
       colsv <- colsv[!dups2]
       print("Colsv set")
       print(upData.pca)
+      pcadata_dl$dl_data <- cbind(groupsdf$ids,groupsdf$algorithm,cdat,colsv,clusters)
       ggbiplot(upData.pca, obs.scale = 1, var.scale = 1,
                ellipse = T,
                alpha=0.3,
@@ -1073,6 +1077,7 @@ shinyServer(function(input, output, session) {
     if(input$variablegroups=="dataset"){
       print(gc())
       upData.pca <- prcomp(pcadata, scale = TRUE)
+      pcadata_dl$dl_data <- cbind(groupsdf$ids,groupsdf$algorithm,pcadata,colsv)
       ggbiplot(upData.pca, obs.scale = 1, var.scale = 1,
                # varname.size = 4,
                # varname.adjust=50,
@@ -1097,6 +1102,7 @@ shinyServer(function(input, output, session) {
       else{
         print(gc())
         upData.pca <- prcomp(pcadata, scale = TRUE)
+        pcadata_dl$dl_data <- cbind(groupsdf$ids,groupsdf$algorithm,pcadata,colsv)
         ggbiplot(upData.pca, obs.scale = 1, var.scale = 1,
                  # varname.size = 4,
                  # varname.adjust=50,
@@ -1127,6 +1133,14 @@ shinyServer(function(input, output, session) {
     },
     
     contentType = "application/pdf"
+  )
+  
+  output$downloadData <- downloadHandler(
+    filename = function(){paste('PCA', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(pcadata_dl$dl_data, file, row.names=F)
+    }
   )
   
   plotPCAdim1 <- reactive({
@@ -1198,6 +1212,7 @@ shinyServer(function(input, output, session) {
 
   ################
   # output$tSNE <- renderPlotly({
+  tsnedata_dl <- reactiveValues(dl_data = NULL)
   plottSNE <-  reactive({
     
     # dat <- upDataorig()
@@ -1349,6 +1364,8 @@ shinyServer(function(input, output, session) {
       hulls <- ddply(pca.df, "clusters", find_hull)
       
       colsv <- colsv[!dups2]
+      
+      tsnedata_dl$dl_data <- cbind(groupsdf$ids,groupsdf$algorithm,cdat,colsv,clusters)
       ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=colsv)) +
         theme_classic(base_family = 'Arial') +
         theme(aspect.ratio=1) +
@@ -1363,6 +1380,7 @@ shinyServer(function(input, output, session) {
     else{
     # print(
       # ggplotly(
+      tsnedata_dl$dl_data <- cbind(groupsdf$ids,groupsdf$algorithm,tsnedata,colsv)
         ggplot(tsne_plot) + geom_point(aes(x=x, y=y, color=colsv)) +
           #xlim(-.03,.025) +
           #ylim(-0.05,0.05) +
@@ -1389,8 +1407,17 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData2 <- downloadHandler(
+    filename = function(){paste('tSNE', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(tsnedata_dl$dl_data, file, row.names=F)
+    }
+  )
+  
   ######################
   # output$Clustering <- renderPlotly({
+  clustcorr_data_dl <- reactiveValues(dl_data = NULL)
   plotClust <- reactive({
     cor.test.p <- function(x){
       FUN <- function(x, y) cor.test(x, y)[["p.value"]]
@@ -1444,8 +1471,10 @@ shinyServer(function(input, output, session) {
     # data$group <- as.numeric(data$group)
     # data$algorithm <- as.numeric(data$algorithm)
     # 
-    # spdata <- cbind(upData(),grps[,1:3])
-    # spdata$clust <- as.factor(grps$clust)
+    # data <- upData()
+    # data <- data[,apply(data, 2, var, na.rm=TRUE) != 0]
+    # spdata <- cbind(data,grps[,1:3])
+    # # spdata$clust <- as.factor(grps$clust)
     # spdata <- subset(spdata,spdata$algorithm == 'Consensus')
     # # spdata <- plyr::rename(spdata,c('percent.of.different.structure'='percent_of_different_structure'))
     # # sp <- ggscatter(spdata, x = "Correlation", y = 'percent_of_different_structure',
@@ -1454,17 +1483,17 @@ shinyServer(function(input, output, session) {
     # # sp + stat_cor(aes(color = dataset), label.x = 3) + xlim(0,1)
     # print(spdata)
     # print("N")
-    # print(length(spdata$clust))
-
-    # ggscatter(spdata, x = "Correlation", y = "percent.of.different.structure", add="reg.line") +
-    # # ggscatter(spdata, x = "Correlation", y = "percent.of.different.structure", color = "clust") +
-    #   # geom_smooth(aes(group=1),color="black",method='lm')+
-    #   stat_cor(
-    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-    #     label.x = .5
-    #   ) + xlim(0,1)
-    # ggsave('spcorr_percent.pdf',width=10,height=6,device=cairo_pdf)
+    # # print(length(spdata$clust))
     # 
+    # # ggscatter(spdata, x = "Correlation", y = "percent.of.different.structure", add="reg.line") +
+    # # # ggscatter(spdata, x = "Correlation", y = "percent.of.different.structure", color = "clust") +
+    # #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    # #   stat_cor(
+    # #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    # #     label.x = .5
+    # #   ) + xlim(0,1)
+    # # ggsave('spcorr_percent.pdf',width=10,height=6,device=cairo_pdf)
+    # # 
     # ggscatter(spdata, x = 'parent_daughter_ratio', y = "percent.of.different.structure", add="reg.line") +
     #   # ggscatter(spdata, x = 'parent_daughter_ratio', y = "percent.of.different.structure", color = "clust") +
     #   # geom_smooth(aes(group=1),color="black",method='lm')+
@@ -1473,74 +1502,85 @@ shinyServer(function(input, output, session) {
     #     label.x = 0.85
     #   )
     # ggsave('spcorr_parentdaughterratio.pdf',width=10,height=6,device=cairo_pdf)
-    # # 
-    # # # ggscatter(spdata, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", color = "clust") +
-    # ggscatter(spdata, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", add="reg.line") +
+    # # # 
+    # # # # ggscatter(spdata, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", color = "clust") +
+    # spdata2 <- spdata[spdata$'bifurcation_angle_remote'>0,] 
+    # ggscatter(spdata2, x = 'bifurcation_angle_remote', y = "percent.of.different.structure", add="reg.line") +
     #   # geom_smooth(aes(group=1),color="black",method='lm')+
     #   stat_cor(
     #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
     #     label.x = 75
     #   )
     # ggsave('spcorr_bifangle.pdf',width=10,height=6,device=cairo_pdf)
-    # 
-    # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", add = "reg.line") +
-    # # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
-    #   # geom_smooth(aes(group=1),color="black",method='lm')+
-    #   stat_cor(
-    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-    #     label.x = 1.05
-    #   ) + xlim(1,1.8)
-    # ggsave('spcorr_diameter.pdf',width=10,height=6,device=cairo_pdf)
-    # 
-    # ggscatter(spdata, x = "PercentMinimal", y = "percent.of.different.structure", add = "reg.line") +
-    #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
-    #   # geom_smooth(aes(group=1),color="black",method='lm')+
-    #   stat_cor(
-    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-    #     label.x = 1.05
-    #   ) #+ xlim(1,1.8)
-    # ggsave('spcorr_percentminimal.pdf',width=10,height=6,device=cairo_pdf)
-    # ggscatter(spdata, x = 'FocusScore', y = "percent.of.different.structure", add="reg.line") +
+    # # 
+    # # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", add = "reg.line") +
+    # # # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
+    # #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    # #   stat_cor(
+    # #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    # #     label.x = 1.05
+    # #   ) + xlim(1,1.8)
+    # # ggsave('spcorr_diameter.pdf',width=10,height=6,device=cairo_pdf)
+    # # 
+    # # ggscatter(spdata, x = "PercentMinimal", y = "percent.of.different.structure", add = "reg.line") +
+    # #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
+    # #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    # #   stat_cor(
+    # #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    # #     label.x = 1.05
+    # #   ) #+ xlim(1,1.8)
+    # # ggsave('spcorr_percentminimal.pdf',width=10,height=6,device=cairo_pdf)
+    # ggscatter(spdata, x = 'FocusScore_swc', y = "percent.of.different.structure", add="reg.line") +
     #   # geom_smooth(aes(group=1),color="black",method='lm')+
     #   stat_cor(
     #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
     #     label.x = 75
     #   )
-    # ggsave('spcorr_FocusScore.pdf',width=10,height=6,device=cairo_pdf)
-    # corrp <- ggscatter(spdata, x = 'CNR_otsu', y = "percent.of.different.structure", add="reg.line") +
-    #   # geom_smooth(aes(group=1),color="black",method='lm')+
-    #   stat_cor(
-    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-    #     label.x = 2,
-    #   )
-    # ggpar(corrp,xscale="log10",xlim = c(10, 3000))
-    # corrp
-    # ggsave('spcorr_CNR_Otsu.pdf',width=10,height=6,device=cairo_pdf)
-    # 
-    # ggscatter(spdata, x = "Correlation_swc", y = "percent.of.different.structure", add = "reg.line") +
-    #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
-    #   # geom_smooth(aes(group=1),color="black",method='lm')+
-    #   stat_cor(
-    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-    #     label.x = 1.05
-    #   ) #+ xlim(1,1.8)
-    # ggsave('spcorr_corrswc.pdf',width=10,height=6,device=cairo_pdf)
-    # 
-    # ggscatter(spdata, x = "MedianIntensity", y = "percent.of.different.structure", add = "reg.line") +
-    #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
-    #   # geom_smooth(aes(group=1),color="black",method='lm')+
-    #   stat_cor(
-    #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-    #     label.x = 1.05
-    #   ) #+ xlim(1,1.8)
-    # ggsave('spcorr_medint.pdf',width=10,height=6,device=cairo_pdf)
+    # ggsave('spcorr_FocusScore_swc.pdf',width=10,height=6,device=cairo_pdf)
+    # # spdata2 <- spdata[spdata$'CNR_otsu'!=3e3,] 
+    # # corrp <- ggscatter(spdata2, x = 'CNR_otsu', y = "percent.of.different.structure", add="reg.line") +
+    # #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    # #   stat_cor(
+    # #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    # #     label.x = 2,
+    # #   )
+    # # ggpar(corrp,xscale="log10",xlim = c(10, 3000))
+    # # corrp
+    # # ggsave('spcorr_CNR_Otsu.pdf',width=10,height=6,device=cairo_pdf)
+    # # 
+    # # ggscatter(spdata, x = "Correlation_swc", y = "percent.of.different.structure", add = "reg.line") +
+    # #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
+    # #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    # #   stat_cor(
+    # #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    # #     label.x = 1.05
+    # #   ) #+ xlim(1,1.8)
+    # # ggsave('spcorr_corrswc.pdf',width=10,height=6,device=cairo_pdf)
+    # # 
+    # # ggscatter(spdata, x = "MedianIntensity", y = "percent.of.different.structure", add = "reg.line") +
+    # #   # ggscatter(spdata, x = "average_diameter", y = "percent.of.different.structure", color="clust") +
+    # #   # geom_smooth(aes(group=1),color="black",method='lm')+
+    # #   stat_cor(
+    # #     aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+    # #     label.x = 1.05
+    # #   ) #+ xlim(1,1.8)
+    # # ggsave('spcorr_medint.pdf',width=10,height=6,device=cairo_pdf)
     
     data <- upData()
     data <- data[,apply(data, 2, var, na.rm=TRUE) != 0]
+    # if("CNR_otsu" %in% names(data)){
+    #   grps <- grps[data$CNR_otsu!=3e3,]
+    #   data <- data[data$CNR_otsu!=3e3,]
+    # }
+    # if("SNR_otsu" %in% names(data)){
+    #   grps <- grps[data$SNR_otsu!=3e3,]
+    #   data <- data[data$SNR_otsu!=3e3,]
+    # }
     
     print(data)
     
     
+    clustcorr_data_dl$dl_data <- cbind(grps$id,grps$algorithm,data)
     
     M <- cor(data)
     p <- cor.test.p(data)
@@ -1556,8 +1596,8 @@ shinyServer(function(input, output, session) {
                       label_names = c("x", "y", "Correlation"),
                       hclust_method="ward.D2",
                       file='Clustering.pdf',
-                      height=1300,
-                      width=1300
+                      height=900,
+                      width=1000
         )
       # )
     # )
@@ -1582,7 +1622,16 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData3 <- downloadHandler(
+    filename = function(){paste('Clust_corr', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(clustcorr_data_dl$dl_data, file, row.names=F)
+    }
+  )
+  
   # output$DendClust <- renderPlot({
+  clustdend_data_dl <- reactiveValues(dl_data = NULL)
   plotDendClust <- reactive({
     ########## Clustering nblast
     # # annrnlist <- anntreeData() 
@@ -1658,6 +1707,9 @@ shinyServer(function(input, output, session) {
     memb1 <- BIC$classification
     
     rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
+    
+    clustdend_data_dl$dl_data <- cbind(grps$ids,grps$dataset,cdat)
+    
     # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
     hclust <- hclust(dist(scale(cdat)),method="ward.D2")
     dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
@@ -1691,7 +1743,16 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData4 <- downloadHandler(
+    filename = function(){paste('Clust_dend', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(clustdend_data_dl$dl_data, file, row.names=F)
+    }
+  )
+  
   # output$DendIm <- renderPlot({
+  clustim_data_dl <- reactiveValues(dl_data = NULL)
   plotImClust <- reactive({
     ######## Clustering Images
     dat <- upDataorig()
@@ -1750,6 +1811,7 @@ shinyServer(function(input, output, session) {
     memb1 <- BIC$classification
     
     rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
+    clustim_data_dl$dl_data <- cbind(grps$ids,grps$dataset,cdat)
     # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
     hclust <- hclust(dist(scale(cdat)),method="ward.D2")
     dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
@@ -1781,7 +1843,17 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData5 <- downloadHandler(
+    filename = function(){paste('Clust_im', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(clustim_data_dl$dl_data, file, row.names=F)
+    }
+  )
   
+  
+  
+  clustboth_data_dl <- reactiveValues(dl_data = NULL)
   plotBothClust <- reactive({
     ######## Clustering Images
     dat <- upDataorig()
@@ -1850,6 +1922,9 @@ shinyServer(function(input, output, session) {
     
     rownames(cdat) <- paste0(grps$ids,'_',grps$dataset)
     # hcTree <- hc(modelName = BIC$modelName , data = scale(cdat))
+    
+    clustboth_data_dl$dl_data <- cbind(grps$ids,grps$dataset,cdat)
+    
     hclust <- hclust(dist(scale(cdat)),method="average")
     dend <- colour_clusters(hclust, k=max(memb1), groupLabels=T)
     memb <- cutree(dend, k = max(BIC$classification))
@@ -1880,6 +1955,14 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData7 <- downloadHandler(
+    filename = function(){paste('Clust_both', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(clustboth_data_dl$dl_data, file, row.names=F)
+    }
+  )
+  
   output$DendPlot <- renderPlot({
     load('dftotgrp.Rdata')
     load('nb.Rdata')
@@ -1891,7 +1974,7 @@ shinyServer(function(input, output, session) {
     plot(annrnlist[annids %in% input$dendplot],main='')
   })
   
-  
+  densplot_data_dl <- reactiveValues(dl_data = NULL)
   DensPlot <- reactive({
     load('groupsdf.Rdata')
     load('nb.Rdata')
@@ -1914,6 +1997,7 @@ shinyServer(function(input, output, session) {
     ## Now we can explore things, lke the density of branchpoints
     # pdf("images/nat_neuromorpho_principals_branchpoints_over_cable.pdf", width = 7, height = 10)
     # ann.summary = subset(ann.summary, branchpoints/cable.length < 0.02)
+    densplot_data_dl$dl_data <- ann.summary
     ggplot(ann.summary, aes(x=Model_organism, y=branchpoints/cable.length, color=Model_organism)) +
       geom_boxplot(outlier.shape = NA, position=position_dodge(0.8), col = "black", alpha = 0)+
       geom_jitter(width=0.25)+
@@ -1939,7 +2023,15 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData9 <- downloadHandler(
+    filename = function(){paste('DensPlot', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(densplot_data_dl$dl_data, file, row.names=F)
+    }
+  )
   
+  volplot_data_dl <- reactiveValues(dl_data = NULL)
   VolPlot <- reactive({
     load('groupsdf.Rdata')
     load('nb.Rdata')
@@ -1961,6 +2053,7 @@ shinyServer(function(input, output, session) {
     
     # pdf("images/nat_neuromorpho_principals_volume_over_cable.pdf", width = 10, height = 7)
     # ann.summary = subset(ann.summary, branchpoints/cable.length < 0.02)
+    volplot_data_dl$dl_data <- ann.summary
     ggplot(ann.summary, aes(x=Model_organism, y=bbx, color=Model_organism)) +
       geom_boxplot(outlier.shape = NA, position=position_dodge(0.8), col = "black")+
       geom_jitter(width=0.25)+
@@ -1986,7 +2079,16 @@ shinyServer(function(input, output, session) {
     contentType = "application/pdf"
   )
   
+  output$downloadData10 <- downloadHandler(
+    filename = function(){paste('VolPlot', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(volplot_data_dl$dl_data, file, row.names=F)
+    }
+  )
   
+  
+  shollplot_data_dl <- reactiveValues(dl_data = NULL)
   ShollPlot <- reactive({
     load('groupsdf.Rdata')
     load('nb.Rdata')
@@ -2035,11 +2137,12 @@ shinyServer(function(input, output, session) {
     # Plot
     a$Model_organism = factor(a$Model_organism, levels = Model_organism.order)
     # pdf("images/nat_neuromorpho_principals_sholl.pdf", width = 10, height = 7)
+    shollplot_data_dl$dl_data <- a
     ggplot(a, aes(x=radii, y=intersections, color=Model_organism)) +
       geom_line()+
       scale_color_brewer(palette="Set2") +
       xlim(0,750) +
-     theme_pubr()
+     theme_pubr() 
   })
   
   output$ShollPlot <- renderPlotly({
@@ -2054,6 +2157,14 @@ shinyServer(function(input, output, session) {
     },
     
     contentType = "application/pdf"
+  )
+  
+  output$downloadData8 <- downloadHandler(
+    filename = function(){paste('ShollPlot', '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(shollplot_data_dl$dl_data, file, row.names=F)
+    }
   )
   
   observe({
@@ -2398,6 +2509,7 @@ shinyServer(function(input, output, session) {
   
   ########################
   # output$Distances <- renderPlotly({
+  distplot_data_dl <- reactiveValues(dl_data=NULL)
   plotDist <- reactive({
     
     dat <- upDataorig()
@@ -2461,10 +2573,32 @@ shinyServer(function(input, output, session) {
                                                    "percent.of.different.structure..from.neuron.1.to.2.",
                                                    "percent.of.different.structure..from.neuron.2.to.1.",
                                                    "percent.of.different.structure"))]
+      pdataagg[,names(pdataagg)%in%c("entire.structure.average..from.neuron.1.to.2.",
+                                       "entire.structure.average..from.neuron.2.to.1.",      
+                                       "average.of.bi.directional.entire.structure.averages",
+                                       "different.structure.average")] <- log10(1+pdataagg[,names(pdataagg)%in%c("entire.structure.average..from.neuron.1.to.2.",
+                                                                                                                  "entire.structure.average..from.neuron.2.to.1.",      
+                                                                                                                  "average.of.bi.directional.entire.structure.averages",
+                                                                                                                  "different.structure.average")])
       
+      print(head(pdataagg))
+      for(met in c("entire.structure.average..from.neuron.1.to.2.",
+                   "entire.structure.average..from.neuron.2.to.1.",      
+                   "average.of.bi.directional.entire.structure.averages",
+                   "different.structure.average")){
+        if(met %in% names(pdataagg)){
+          pdataagg[,names(pdataagg)==met][is.na(pdataagg[,names(pdataagg)==met])] <- max(pdataagg[,names(pdataagg)==met], na.rm=T)
+          pdataagg[,names(pdataagg)==met][is.infinite(pdataagg[,names(pdataagg)==met])] <- max(pdataagg[,names(pdataagg)==met], na.rm=T)
+        }
+        print(max(pdataagg[,names(pdataagg)==met]))
+        print(min(pdataagg[,names(pdataagg)==met]))
+      }
+      print(head(pdataagg))
       pdataagg <-  sapply(pdataagg, function(x) (x - min(x, na.rm = T)) / (max(x, na.rm = T) - min(x, na.rm=T)))
+      print(head(pdataagg))
       pdata$dists <- rowMeans(pdataagg)
     }
+    # print(head(pdata))
     # pdata$dists <- pdata[,which(names(pdata)=='percent.of.different.structure')]
     # pdata$dists <- pdata[,which(names(pdata)=='entire.structure.average..from.neuron.1.to.2.')]
     
@@ -2524,8 +2658,13 @@ shinyServer(function(input, output, session) {
       #            width=0.8,position = position_dodge()) +
       #   coord_flip() +
       #   geom_errorbar()
-    print(pdata)
     pdata$algorithm <- as.factor(pdata$algorithm)
+    # distplot_data_dl$dl_data <- pdata[,c(25,27,37,38)]
+    distplot_data_dl$dl_data <- pdata[,which(names(pdata) %in% c("algorithm",
+                                                                 "ids","dists","lab"))]
+    print(head(pdata[,which(names(pdata) %in% c("algorithm",
+                                                "ids","dists","lab"))]))
+    
     p <- ggbarplot(pdata, x = "algorithm", y = "dists",
                 order = arrange(ppdata,ppdata$x)$Group.1,
                 # order = arrange(ppdata,desc(ppdata$x))$Group.1,
@@ -2539,10 +2678,11 @@ shinyServer(function(input, output, session) {
                 # ylab= 'percent of different structure',
                 # ylab= 'entire structure average from neuron 1 to 2',
                 # add.params = list(size = 0.5, alpha=0.7, shape=1),
-                add.params = list(size = 1, fill="steelblue", alpha=0.6, shape=1),
+                add.params = list(size = 1, fill="steelblue", alpha=0.3, shape=1),
                 add = c("mean_se", "jitter")) +
                 # add = c("mean_se", "dotplot")) +
-        theme(text = element_text(size=8),
+        # theme(text = element_text(size=16),
+      theme(text = element_text(size=8),
               axis.text.x = element_text(angle=45, hjust=1),
               legend.position="none")
     save(p,file = "plot_dists.Rdata")
@@ -2562,10 +2702,19 @@ shinyServer(function(input, output, session) {
     filename = function(){paste('Distances', '.pdf', sep = '')},
     
     content = function(file){
-      ggsave(file,width=8,height=4,device=cairo_pdf,ggpar(plotDist(),legend="right"))
+      # ggsave(file,width=8,height=4,device=cairo_pdf,ggpar(plotDist(),legend="right"))
+      ggsave(file,width=12,height=5,device=cairo_pdf,ggpar(plotDist(),legend="right"))
     },
     
     contentType = "application/pdf"
+  )
+  
+  output$downloadData6 <- downloadHandler(
+    filename = function(){paste('DistPlot_', input$distmetric, '.csv', sep = '')},
+    
+    content = function(file){
+      write.csv(distplot_data_dl$dl_data, file, row.names=F)
+    }
   )
 })
 

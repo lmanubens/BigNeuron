@@ -29,22 +29,35 @@ load('../shiny_app/groupsdf.Rdata')
 
 data <- my_data 
 
-groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "app2"
-groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
-groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new1"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new2"] <- "app2"
+# groupsdf$algorithm[groupsdf$algorithm=="app2new3"] <- "app2"
+groupsdf$algorithm[groupsdf$algorithm=="Advantra"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="Advantra_updated"] <- "Advantra"
+groupsdf$algorithm[groupsdf$algorithm=="neutube"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="neutube_updated"] <- "neutube"
+groupsdf$algorithm[groupsdf$algorithm=="pyzh"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="pyzh_updated"] <- "pyzh"
+groupsdf$algorithm[groupsdf$algorithm=="LCMboost"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="LCMboost_updated"] <- "LCMboost"
-groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+# groupsdf$algorithm[groupsdf$algorithm=="LCMboost_3"] <- "LCMboost"
+groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="fastmarching_spanningtree_updated"] <- "fastmarching_spanningtree"
+groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="axis_analyzer_updated"] <- "axis_analyzer"
+groupsdf$algorithm[groupsdf$algorithm=="NeuronChaser"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="NeuronChaser_updated"] <- "NeuronChaser"
+groupsdf$algorithm[groupsdf$algorithm=="meanshift"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="meanshift_updated"] <- "meanshift"
+groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree"] <- "none"
 groupsdf$algorithm[groupsdf$algorithm=="NeuroGPSTree_updated"] <- "NeuroGPSTree"
-groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "EnsembleNeuronTracerBasic"
+groupsdf$algorithm[groupsdf$algorithm=="ENT"] <- "none"
+groupsdf$algorithm[groupsdf$algorithm=="ENT_updated"] <- "ENT"
 
 ml <- cbind(data,groupsdf)
+
+ml <- ml[ml$algorithm!="none" & ml$group!="Processed",]
+groupsdf <- groupsdf[groupsdf$algorithm!="none" & groupsdf$group!="Processed",]
 
 ml <- ml[,names(ml) %in% c(
   # "num_stems","num_of_tips","average_diameter","total_length","max_path_distance",

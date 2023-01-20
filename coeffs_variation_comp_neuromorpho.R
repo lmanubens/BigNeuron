@@ -15,7 +15,7 @@ neuromorpho <- c(0.57,1.82,0.43,0.51,0.65,0.17,0.18,0.85,0.57)
 
 CV <- c(gs,neuromorpho)
 
-dataset <- c(rep("Gold 162",9),rep("Neuromorpho",9))
+dataset <- c(rep("Gold 166",9),rep("Neuromorpho",9))
 
 # my_data$dataset <- 'Gold_Standard'
 metric <- rep(names(my_data),2)
