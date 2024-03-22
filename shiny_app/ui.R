@@ -152,7 +152,9 @@ shinyUI(fluidPage(
           # Input: Select a file ----
           fileInput("file1", "Choose SWC and their associated IQ files",
               multiple = TRUE,
-              accept = c(".swc",".eswc",".txt"))),
+              #accept = c(".swc",".eswc",".txt"))),
+              #zx add .csv
+              accept = c(".swc",".eswc",".txt",".csv"))),
 
           # # Input: Checkbox 
           # checkboxGroupInput("variableinpdat", "Choose images of uploaded reconstructions","",selected="variableinpdat",inline=TRUE),
